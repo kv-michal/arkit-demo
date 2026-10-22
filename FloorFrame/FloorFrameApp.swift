@@ -98,11 +98,24 @@ final class PlacementModel: NSObject, ObservableObject, ARSessionDelegate {
         block = ModelEntity(mesh: .generateBox(width: width, height: height, depth: width * 0.45, cornerRadius: height * 0.15), materials: [material])
         // The origin is on the underside, just above the surface to avoid z-fighting.
         block.position.y = height / 2 + 0.001
-        let edgeMaterial = UnlitMaterial(color: .white)
-        for sign: Float in [-1, 1] {
-            let edge = ModelEntity(mesh: .generateBox(width: width, height: height * 0.15, depth: width * 0.008), materials: [edgeMaterial])
-            edge.position = [0, height / 2, sign * width * 0.215]
+        // Opaque bounding edges, including the underside, reveal floor penetration.
+        let depth = width * 0.45
+        let thickness = min(Float(0.03), max(Float(0.003), width * 0.015))
+        let halfX = (width - thickness) / 2
+        let halfY = (height - thickness) / 2
+        let halfZ = (depth - thickness) / 2
+        let edgeMaterial = UnlitMaterial(color: .red)
+        func addEdge(size: SIMD3<Float>, position: SIMD3<Float>) {
+            let edge = ModelEntity(mesh: .generateBox(size: size), materials: [edgeMaterial])
+            edge.position = position
             block.addChild(edge)
+        }
+        for a: Float in [-1, 1] {
+            for b: Float in [-1, 1] {
+                addEdge(size: [width, thickness, thickness], position: [0, a * halfY, b * halfZ])
+                addEdge(size: [thickness, height, thickness], position: [a * halfX, 0, b * halfZ])
+                addEdge(size: [thickness, thickness, depth], position: [a * halfX, b * halfY, 0])
+            }
         }
         (fixed ?? preview).addChild(block)
         block.isEnabled = locked || ready
