@@ -1,0 +1,10 @@
+.DS_Store
+build/
+*.xcuserstate
+xcuserdata/
+.idea/
+node_modules/
+.expo/
+floor-frame-viro/ios/Pods/
+floor-frame-viro/ios/build/
+floor-frame-viro/dist/

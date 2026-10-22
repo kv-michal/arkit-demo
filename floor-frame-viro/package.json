@@ -1,0 +1,34 @@
+{
+  "name": "floor-frame-viro",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "@reactvision/react-viro": "3.0.3",
+    "expo": "~57.0.31",
+    "expo-blur": "~57.0.3",
+    "expo-build-properties": "~57.0.22",
+    "expo-camera": "~57.0.6",
+    "expo-haptics": "~57.0.3",
+    "expo-linear-gradient": "~57.0.2",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "~5.7.0"
+  },
+  "scripts": {
+    "start": "expo start",
+    "ios": "expo run:ios --device",
+    "ios:release": "expo run:ios --device --configuration Release",
+    "prebuild": "expo prebuild --platform ios",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "doctor": "npx --yes react-doctor@latest --verbose"
+  },
+  "private": true,
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "@types/react": "~19.2.10",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3"
+  }
+}
