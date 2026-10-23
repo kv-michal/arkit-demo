@@ -8,7 +8,7 @@ import {
   ViroBox,
   ViroMaterials,
 } from "@reactvision/react-viro";
-import { modelStore } from "./placement";
+import { modelStore, placement } from "./placement";
 
 ViroMaterials.createMaterials({
   block: {
@@ -35,7 +35,15 @@ const DIRECTION: [number, number, number] = [0, -1, -0.4];
 export function FloorScene() {
   const { pose, width, rectangleCount } = modelStore.useValue();
   return (
-    <ViroARScene anchorDetectionTypes={DETECTION} toneMappingEnabled={false}>
+    <ViroARScene
+      ref={placement.attachScene}
+      anchorDetectionTypes={DETECTION}
+      toneMappingEnabled={false}
+      onTrackingUpdated={placement.trackingUpdated}
+      onAnchorFound={placement.anchorUpdated}
+      onAnchorUpdated={placement.anchorUpdated}
+      onAnchorRemoved={placement.anchorRemoved}
+    >
       <ViroAmbientLight color="#ffffff" intensity={600} />
       <ViroDirectionalLight
         color="#ffffff"

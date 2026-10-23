@@ -17,9 +17,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useCameraPermissions } from "expo-camera";
 import { StatusBar } from "expo-status-bar";
 import { ViroARSceneNavigator } from "@reactvision/react-viro";
-import Session from "./modules/floor-frame-session";
 import { FloorScene } from "./src/ARScene";
-import { occlusionStore, placement, uiStore } from "./src/placement";
+import { settingsStore, placement, uiStore } from "./src/placement";
 
 const INITIAL_SCENE = { scene: FloorScene };
 const GRADIENT = [
@@ -29,7 +28,7 @@ const GRADIENT = [
 ] as const;
 function FloorFrame() {
   const insets = useSafeAreaInsets();
-  const occlusion = occlusionStore.useValue();
+  const settings = settingsStore.useValue();
   const [permission, requestPermission] = useCameraPermissions();
   const [active, setActive] = useState(AppState.currentState === "active");
   const granted = permission?.granted === true;
@@ -57,7 +56,7 @@ function FloorFrame() {
         inFlight = false;
       }
     };
-    // Match Swift's 20 Hz preview budget without overlapping bridge calls.
+    // Match Swift's 20 Hz preview budget without overlapping Viro hit tests.
     const timer = setInterval(() => {
       void poll();
     }, 50);
@@ -74,14 +73,16 @@ function FloorFrame() {
       {granted ? (
         <View style={StyleSheet.absoluteFill}>
           <ViroARSceneNavigator
+            key={settings.sessionId}
+            ref={placement.attachNavigator}
             initialScene={INITIAL_SCENE}
             worldAlignment="Gravity"
             autofocus
             videoQuality="High"
             provider="none"
-            depthEnabled={false}
-            worldMeshEnabled={false}
-            occlusionMode={occlusion ? "depthBased" : "disabled"}
+            depthEnabled={settings.depth}
+            worldMeshEnabled={settings.depth}
+            occlusionMode={settings.occlusion ? "depthBased" : "disabled"}
             hdrEnabled
             pbrEnabled
             bloomEnabled={false}
@@ -135,7 +136,7 @@ function Header({ granted }: { granted: boolean }) {
         accessibilityLabel="Reset scan"
         testID="reset"
         disabled={ui.busy || !granted}
-        onPress={() => void placement.configure(ui.lidar)}
+        onPress={() => void placement.configure(ui.depth)}
         style={s.reset}
       >
         <Text style={s.resetIcon}>↻</Text>
@@ -217,7 +218,7 @@ function OcclusionControl({ granted }: { granted: boolean }) {
         testID="occlusionToggle"
         value={ui.occlusion}
         onValueChange={(value) => void placement.setOcclusion(value)}
-        disabled={!Session.supportsLiDAR || ui.busy || !granted}
+        disabled={ui.busy || !granted}
         trackColor={{ true: "#63e6c4" }}
       />
     </View>
@@ -225,25 +226,23 @@ function OcclusionControl({ granted }: { granted: boolean }) {
 }
 function ModeControl({ granted }: { granted: boolean }) {
   const ui = uiStore.useValue();
-  const description = Session.supportsLiDAR
-    ? ui.lidar
-      ? "Depth-assisted surfaces"
-      : ui.occlusion
-        ? "Mesh active for occlusion"
-        : "Standard ARKit surfaces"
-    : "Unavailable · using standard ARKit";
+  const description = ui.depth
+    ? "LiDAR when available · Viro depth + mesh"
+    : ui.occlusion
+      ? "Depth active for occlusion"
+      : "Standard Viro plane detection";
   return (
     <View style={s.modeRow}>
       <View style={s.modeText}>
-        <Text style={s.modeLabel}>LiDAR mesh</Text>
+        <Text style={s.modeLabel}>Viro depth + mesh</Text>
         <Text style={s.small}>{description}</Text>
       </View>
       <Switch
-        accessibilityLabel="LiDAR mesh"
-        testID="lidarToggle"
-        value={ui.lidar}
-        onValueChange={(lidar) => void placement.configure(lidar)}
-        disabled={!Session.supportsLiDAR || ui.locked || ui.busy || !granted}
+        accessibilityLabel="Viro depth + mesh"
+        testID="depthToggle"
+        value={ui.depth}
+        onValueChange={(depth) => placement.configure(depth)}
+        disabled={ui.locked || ui.busy || !granted}
         trackColor={{ true: "#63e6c4" }}
       />
     </View>

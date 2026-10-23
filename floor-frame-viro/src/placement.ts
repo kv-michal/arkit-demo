@@ -1,9 +1,20 @@
 import * as Haptics from "expo-haptics";
-import Session from "../modules/floor-frame-session";
+import {
+  ViroTrackingStateConstants,
+  type ViroARScene,
+  type ViroARSceneNavigator,
+  type ViroARHitTestResult,
+  type ViroAnchor,
+} from "@reactvision/react-viro";
 import { createStore } from "./store";
-import { Pose, poseFromMatrix, surfacePose, Vec3 } from "./surfacePose";
+import { cross, surfacePose, type Pose, type Vec3 } from "./surfacePose";
+import { depthNormal, followAnchor, transformMatrix } from "./viroGeometry";
 
-export const occlusionStore = createStore(false);
+export const settingsStore = createStore({
+  depth: true,
+  occlusion: false,
+  sessionId: 0,
+});
 export const modelStore = createStore<{
   pose: Pose | null;
   width: number;
@@ -17,7 +28,7 @@ export const uiStore = createStore({
   large: false,
   rectangleCount: 11,
   occlusion: false,
-  lidar: Session.supportsLiDAR,
+  depth: true,
   locked: false,
   ready: false,
   busy: false,
@@ -25,8 +36,15 @@ export const uiStore = createStore({
   detail: "Aim the center target at a floor or slope",
 });
 type UI = ReturnType<typeof uiStore.get>;
+let scene: ViroARScene | null = null;
+let navigator: ViroARSceneNavigator | null = null;
+let tracking: number = ViroTrackingStateConstants.TRACKING_UNAVAILABLE;
 let generation = 0;
 let lastHitTime = 0;
+let candidate: ViroARHitTestResult | null = null;
+let anchorBinding: { id: string; initial: number[]; placed: Pose } | null =
+  null;
+const anchors = new Map<string, ViroAnchor>();
 function updateUI(change: Partial<UI>) {
   const current = uiStore.get();
   if (
@@ -36,20 +54,22 @@ function updateUI(change: Partial<UI>) {
   )
     uiStore.set({ ...current, ...change });
 }
-// Keep React/Viro idle when an invalid preview or anchored pose is unchanged.
 function showPose(pose: Pose | null) {
   const current = modelStore.get();
-  if (current.pose === pose) return;
   if (
-    pose &&
-    current.pose &&
-    pose.matrix.every((value, index) => value === current.pose!.matrix[index])
+    current.pose === pose ||
+    (pose &&
+      current.pose &&
+      pose.matrix.every(
+        (value, index) => value === current.pose!.matrix[index],
+      ))
   )
     return;
   modelStore.set({ ...current, pose });
 }
 function invalid(message: string) {
   lastHitTime = 0;
+  candidate = null;
   showPose(null);
   updateUI({
     ready: false,
@@ -57,37 +77,151 @@ function invalid(message: string) {
     detail: "Aim the center target at a floor or slope",
   });
 }
+function closestSurface(
+  hits: ViroARHitTestResult[],
+  camera: Vec3,
+  depth: boolean,
+) {
+  return hits
+    .filter(
+      (hit) =>
+        hit.type !== "FeaturePoint" && (depth || hit.type !== "DepthPoint"),
+    )
+    .sort(
+      (a, b) =>
+        Math.hypot(...a.transform.position.map((v, i) => v - camera[i])) -
+        Math.hypot(...b.transform.position.map((v, i) => v - camera[i])),
+    )[0];
+}
+function resetPlacement() {
+  generation++;
+  anchorBinding = null;
+  anchors.clear();
+  updateUI({ locked: false, busy: false });
+  invalid("Scan the floor again");
+}
 export const placement = {
-  async sample() {
-    const token = generation;
-    if (uiStore.get().busy) return;
-    try {
-      const sample = await Session.sample();
-      if (token !== generation || uiStore.get().busy) return;
-      if (uiStore.get().locked) {
-        if (sample.status === "anchored" && sample.matrix)
-          showPose(poseFromMatrix(sample.matrix));
-        return;
-      }
-      if (sample.status !== "hit" || !sample.matrix || !sample.camera) {
-        invalid(
-          sample.status === "tracking"
-            ? "Move slowly · tracking the room"
-            : "Aim at a textured floor and move slowly",
-        );
-        return;
-      }
-      const m = sample.matrix;
-      const pose = surfacePose(
-        m.slice(12, 15) as Vec3,
-        m.slice(4, 7) as Vec3,
-        sample.camera,
+  attachScene(value: ViroARScene | null) {
+    if (scene !== value) generation++;
+    scene = value;
+  },
+  attachNavigator(value: ViroARSceneNavigator | null) {
+    navigator = value;
+  },
+  trackingUpdated(state: number) {
+    tracking = state;
+    if (state !== ViroTrackingStateConstants.TRACKING_NORMAL) {
+      generation++;
+      updateUI({ busy: false });
+      if (!uiStore.get().locked) invalid("Move slowly · tracking the room");
+    }
+  },
+  anchorUpdated(anchor: ViroAnchor) {
+    anchors.set(anchor.anchorId, anchor);
+    if (anchorBinding?.id === anchor.anchorId) {
+      showPose(
+        followAnchor(
+          anchorBinding.initial,
+          transformMatrix(anchor.position, anchor.rotation),
+          anchorBinding.placed,
+        ),
       );
+    }
+  },
+  anchorRemoved(anchor?: ViroAnchor) {
+    if (!anchor) return;
+    anchors.delete(anchor.anchorId);
+    if (anchorBinding?.id === anchor.anchorId) {
+      anchorBinding = null;
+      updateUI({ locked: false });
+      invalid("Anchor lost · aim at the floor again");
+    }
+  },
+  async sample() {
+    const currentScene = scene;
+    const ui = uiStore.get();
+    if (
+      !currentScene ||
+      ui.busy ||
+      ui.locked ||
+      tracking !== ViroTrackingStateConstants.TRACKING_NORMAL
+    )
+      return;
+    const token = generation;
+    const settings = settingsStore.get();
+    try {
+      const orientation = await currentScene.getCameraOrientationAsync();
+      const camera = orientation.position as Vec3;
+      const forward = orientation.forward as Vec3;
+      const hits: ViroARHitTestResult[] =
+        await currentScene.performARHitTestWithRay(forward);
+      const hit = closestSurface(
+        hits,
+        camera,
+        settings.depth || settings.occlusion,
+      );
+      if (token !== generation) return;
+      if (!hit) {
+        invalid("Aim at a textured floor and move slowly");
+        return;
+      }
+      const matrix = transformMatrix(
+        hit.transform.position,
+        hit.transform.rotation,
+      );
+      let normal: Vec3 | null = matrix.slice(4, 7) as Vec3;
+      if (hit.type === "DepthPoint") {
+        // A depth point alone does not establish a surface orientation.
+        const up = orientation.up as Vec3;
+        const right = cross(forward, up);
+        const ray = (offset: Vec3): Vec3 =>
+          forward.map((v, i) => v + offset[i] * 0.015) as Vec3;
+        const [rightHits, upHits]: ViroARHitTestResult[][] = await Promise.all([
+          currentScene.performARHitTestWithRay(ray(right)),
+          currentScene.performARHitTestWithRay(ray(up)),
+        ]);
+        const rightHit = closestSurface(
+          rightHits.filter((h) => h.type === "DepthPoint"),
+          camera,
+          true,
+        );
+        const upHit = closestSurface(
+          upHits.filter((h) => h.type === "DepthPoint"),
+          camera,
+          true,
+        );
+        normal =
+          rightHit && upHit
+            ? depthNormal(
+                hit.transform.position,
+                rightHit.transform.position,
+                upHit.transform.position,
+              )
+            : null;
+      }
+      if (token !== generation) return;
+      const pose =
+        normal && surfacePose(hit.transform.position, normal, camera);
       if (!pose) {
         invalid("Point down at a floor or slope");
         return;
       }
       lastHitTime = Date.now();
+      // Prefer a nearby plane result for Viro anchor creation. Synthetic depth
+      // hits may not support createAnchoredNode on every backend.
+      candidate =
+        hit.type === "DepthPoint"
+          ? (hits.find(
+              (other) =>
+                other.type !== "DepthPoint" &&
+                other.type !== "FeaturePoint" &&
+                Math.hypot(
+                  ...other.transform.position.map(
+                    (value, index) => value - hit.transform.position[index],
+                  ),
+                ) < 0.1,
+            ) ?? hit)
+          : hit;
       showPose(pose);
       updateUI({
         ready: true,
@@ -95,10 +229,9 @@ export const placement = {
         detail: `${pose.distance.toFixed(1)} m away · ${pose.slope.toFixed(0)}° slope`,
       });
     } catch (error) {
-      invalid("AR session stopped");
-      updateUI({
-        detail: error instanceof Error ? error.message : String(error),
-      });
+      if (token !== generation) return;
+      invalid("AR hit test unavailable");
+      updateUI({ detail: String(error) });
     }
   },
   setWidth(large: boolean) {
@@ -110,77 +243,85 @@ export const placement = {
     updateUI({ rectangleCount: count });
     modelStore.set({ ...modelStore.get(), rectangleCount: count });
   },
-  async setOcclusion(occlusion: boolean) {
-    const ui = uiStore.get();
-    if (ui.busy || !Session.supportsLiDAR) return;
-    generation++;
-    updateUI({ busy: true });
-    try {
-      await Session.configure(ui.lidar, false, occlusion);
-      occlusionStore.set(occlusion);
-      updateUI({ occlusion });
-    } catch (error) {
-      updateUI({
-        message: "Could not change occlusion",
-        detail: String(error),
-      });
-    } finally {
-      updateUI({ busy: false });
-    }
-  },
-  async configure(lidar: boolean) {
+  setOcclusion(occlusion: boolean) {
     if (uiStore.get().busy) return;
     generation++;
-    lastHitTime = 0;
-    updateUI({
-      busy: true,
-      lidar,
-      locked: false,
-      ready: false,
-      message: "Scan the floor again",
+    settingsStore.set({ ...settingsStore.get(), occlusion });
+    updateUI({ occlusion });
+    if (!uiStore.get().locked) invalid("Aim at the floor to reposition");
+  },
+  configure(depth: boolean) {
+    resetPlacement();
+    tracking = ViroTrackingStateConstants.TRACKING_UNAVAILABLE;
+    updateUI({ depth });
+    const settings = settingsStore.get();
+    // Recreate Viro's navigator/session for a full reset and depth-mode change.
+    settingsStore.set({
+      ...settings,
+      depth,
+      sessionId: settings.sessionId + 1,
     });
-    showPose(null);
-    try {
-      await Session.configure(lidar, true, uiStore.get().occlusion);
-    } catch (error) {
-      updateUI({ message: "AR session stopped", detail: String(error) });
-    } finally {
-      updateUI({ busy: false });
-    }
   },
   async anchorOrReposition() {
+    const currentScene = scene;
     const ui = uiStore.get();
-    if (ui.busy) return;
-    if (!ui.locked && (!ui.ready || Date.now() - lastHitTime > 250)) {
+    if (ui.busy || !currentScene) return;
+    if (ui.locked) {
+      // Viro has no public remove-single-anchor API. Clear anchors without resetting tracking.
+      navigator?.sceneNavigator.resetARSession(false, true);
+      resetPlacement();
+      return;
+    }
+    if (
+      !ui.ready ||
+      !candidate ||
+      Date.now() - lastHitTime > 250 ||
+      tracking !== ViroTrackingStateConstants.TRACKING_NORMAL
+    ) {
       invalid("Aim at the floor to reposition");
       return;
     }
-    const pose = modelStore.get().pose;
-    generation++;
+    const hit = candidate,
+      pose = modelStore.get().pose;
+    if (!pose) return;
+    const token = ++generation;
     updateUI({ busy: true });
     try {
-      if (ui.locked) {
-        await Session.unanchor();
-        updateUI({ locked: false });
-        invalid("Aim at the floor to reposition");
-      } else if (pose && (await Session.anchor(pose.matrix))) {
+      const node = await currentScene.createAnchoredNode(hit);
+      if (token !== generation) return;
+      if (!node?.anchorId) {
         updateUI({
-          locked: true,
-          message: "Anchored in place",
-          detail: "Walk around it · tap Reposition to move it",
+          message: "Viro could not create an anchor",
+          detail: "Aim at a detected plane and try again",
         });
-        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      } else {
-        invalid("Move slowly · tracking the room");
+        return;
       }
+      anchorBinding = {
+        id: node.anchorId,
+        initial: transformMatrix(
+          hit.transform.position,
+          hit.transform.rotation,
+        ),
+        placed: pose,
+      };
+      updateUI({
+        locked: true,
+        message: "Anchored in place",
+        detail: "Walk around it · tap Reposition to move it",
+      });
+      const latest = anchors.get(node.anchorId);
+      if (latest) placement.anchorUpdated(latest);
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch (error) {
-      updateUI({ message: "Could not anchor", detail: String(error) });
+      if (token === generation)
+        updateUI({ message: "Could not anchor", detail: String(error) });
     } finally {
-      updateUI({ busy: false });
+      if (token === generation) updateUI({ busy: false });
     }
   },
   suspend() {
     generation++;
+    updateUI({ busy: false });
     if (!uiStore.get().locked) invalid("Move slowly · tracking the room");
   },
 };
