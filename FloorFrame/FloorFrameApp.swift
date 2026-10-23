@@ -11,6 +11,8 @@ struct FloorFrameApp: App {
 
 final class PlacementModel: NSObject, ObservableObject, ARSessionDelegate {
     @Published var large = false
+    @Published var rectangleCount = 11
+    @Published var occlusion = false
     @Published var lidar = ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh)
     @Published var locked = false
     @Published var ready = false
@@ -21,7 +23,7 @@ final class PlacementModel: NSObject, ObservableObject, ARSessionDelegate {
     let view = ARView(frame: .zero, cameraMode: .ar, automaticallyConfigureSession: false)
     private var subscription: Cancellable?
     private var preview = AnchorEntity(world: .zero)
-    private var block = ModelEntity()
+    private var block = Entity()
     private var fixed: AnchorEntity?
     private var arAnchor: ARAnchor?
     private var candidate: simd_float4x4?
@@ -67,7 +69,7 @@ final class PlacementModel: NSObject, ObservableObject, ARSessionDelegate {
         let config = ARWorldTrackingConfiguration()
         config.planeDetection = [.horizontal]
         config.environmentTexturing = .automatic
-        config.sceneReconstruction = lidar && supportsLiDAR ? .mesh : []
+        config.sceneReconstruction = (lidar || occlusion) && supportsLiDAR ? .mesh : []
         config.frameSemantics = []
         view.session.run(config)
         active = true
@@ -82,10 +84,15 @@ final class PlacementModel: NSObject, ObservableObject, ARSessionDelegate {
         let config = ARWorldTrackingConfiguration()
         config.planeDetection = [.horizontal]
         config.environmentTexturing = .automatic
-        config.sceneReconstruction = lidar && supportsLiDAR ? .mesh : []
+        config.sceneReconstruction = (lidar || occlusion) && supportsLiDAR ? .mesh : []
         view.session.run(config, options: [.resetTracking, .removeExistingAnchors])
         active = true
         message = "Scan the floor again"
+    }
+
+    func changeOcclusion() {
+        view.environment.sceneUnderstanding.options = occlusion ? [.occlusion] : []
+        if active { runSession() }
     }
 
     func rebuildBlock() {
@@ -95,9 +102,9 @@ final class PlacementModel: NSObject, ObservableObject, ARSessionDelegate {
         material.baseColor = .init(tint: UIColor(red: 0.2, green: 0.85, blue: 0.72, alpha: 1))
         material.roughness = 0.6
         material.blending = .transparent(opacity: 0.6)
-        block = ModelEntity(mesh: .generateBox(width: width, height: height, depth: width * 0.45, cornerRadius: height * 0.15), materials: [material])
+        let rectangle = ModelEntity(mesh: .generateBox(width: width, height: height, depth: width * 0.45, cornerRadius: height * 0.15), materials: [material])
         // The origin is on the underside, just above the surface to avoid z-fighting.
-        block.position.y = height / 2 + 0.001
+        rectangle.position.y = height / 2 + 0.001
         // Opaque bounding edges, including the underside, reveal floor penetration.
         let depth = width * 0.45
         let thickness = min(Float(0.03), max(Float(0.003), width * 0.015))
@@ -108,7 +115,7 @@ final class PlacementModel: NSObject, ObservableObject, ARSessionDelegate {
         func addEdge(size: SIMD3<Float>, position: SIMD3<Float>) {
             let edge = ModelEntity(mesh: .generateBox(size: size), materials: [edgeMaterial])
             edge.position = position
-            block.addChild(edge)
+            rectangle.addChild(edge)
         }
         for a: Float in [-1, 1] {
             for b: Float in [-1, 1] {
@@ -116,6 +123,15 @@ final class PlacementModel: NSObject, ObservableObject, ARSessionDelegate {
                 addEdge(size: [thickness, height, thickness], position: [a * halfX, 0, b * halfZ])
                 addEdge(size: [thickness, thickness, depth], position: [a * halfX, b * halfY, 0])
             }
+        }
+        block = Entity()
+        block.addChild(rectangle)
+        // Keep the placed rectangle at the origin and alternate left/right.
+        for index in 1..<rectangleCount {
+            let copy = rectangle.clone(recursive: true)
+            let side: Float = index % 2 == 1 ? -1 : 1
+            copy.position.x = side * Float((index + 1) / 2) * width
+            block.addChild(copy)
         }
         (fixed ?? preview).addChild(block)
         block.isEnabled = locked || ready
@@ -233,10 +249,18 @@ struct ContentView: View {
                             Text("3 m wide").tag(true)
                         }.pickerStyle(.segmented).accessibilityIdentifier("widthPicker")
                             .onChange(of: model.large) { _, _ in model.rebuildBlock() }
+                        Stepper("Rectangles: \(model.rectangleCount)", value: $model.rectangleCount, in: 1...51)
+                            .font(.subheadline).accessibilityIdentifier("rectangleCountStepper")
+                            .onChange(of: model.rectangleCount) { _, _ in model.rebuildBlock() }
+                        Toggle("Occlusion", isOn: $model.occlusion)
+                            .font(.subheadline).tint(.mint)
+                            .disabled(!model.supportsLiDAR)
+                            .accessibilityIdentifier("occlusionToggle")
+                            .onChange(of: model.occlusion) { _, _ in model.changeOcclusion() }
                         HStack {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text("LiDAR mesh").font(.subheadline.weight(.medium))
-                                Text(model.supportsLiDAR ? (model.lidar ? "Depth-assisted surfaces" : "Standard ARKit surfaces") : "Unavailable · using standard ARKit").font(.caption).foregroundStyle(.secondary)
+                                Text(model.supportsLiDAR ? (model.lidar ? "Depth-assisted surfaces" : (model.occlusion ? "Mesh active for occlusion" : "Standard ARKit surfaces")) : "Unavailable · using standard ARKit").font(.caption).foregroundStyle(.secondary)
                             }
                             Spacer()
                             Toggle("LiDAR mesh", isOn: $model.lidar).labelsHidden().tint(.mint)
