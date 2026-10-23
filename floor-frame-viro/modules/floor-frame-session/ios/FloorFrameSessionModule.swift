@@ -4,15 +4,17 @@ import ARKit
 public class FloorFrameSessionModule: Module {
   private weak var session: ARSession?
   private var lidar = ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh)
+  private var occlusion = false
   private var anchor: ARAnchor?
 
   public func definition() -> ModuleDefinition {
     Name("FloorFrameSession")
     Constant("supportsLiDAR") { ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh) }
 
-    AsyncFunction("configure") { (lidar: Bool, reset: Bool) in
+    AsyncFunction("configure") { (lidar: Bool, reset: Bool, occlusion: Bool) in
       self.lidar = lidar
-      self.anchor = nil
+      self.occlusion = occlusion
+      if reset { self.anchor = nil }
       if let session = FFSessionAccess.currentSession() {
         self.session = session
         self.configure(session, reset: reset)
@@ -31,7 +33,7 @@ public class FloorFrameSessionModule: Module {
       }
       // Viro can re-run its own saved configuration on foregrounding. Restore
       // the selected mesh mode on the same session without resetting anchors.
-      let wanted: ARConfiguration.SceneReconstruction = self.lidar && ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh) ? .mesh : []
+      let wanted: ARConfiguration.SceneReconstruction = (self.lidar || self.occlusion) && ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh) ? .mesh : []
       if let config = session.configuration as? ARWorldTrackingConfiguration,
          config.sceneReconstruction != wanted {
         self.configure(session, reset: false)
@@ -77,8 +79,13 @@ public class FloorFrameSessionModule: Module {
     let config = (session.configuration?.copy() as? ARWorldTrackingConfiguration) ?? ARWorldTrackingConfiguration()
     config.planeDetection = [.horizontal]
     config.environmentTexturing = .automatic
-    config.sceneReconstruction = lidar && ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh) ? .mesh : []
-    config.frameSemantics = []
+    config.sceneReconstruction = (lidar || occlusion) && ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh) ? .mesh : []
+    // Keep Viro's depth renderer supplied when it reconfigures the shared session.
+    if occlusion && ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth) {
+      config.frameSemantics.insert(.sceneDepth)
+    } else {
+      config.frameSemantics = []
+    }
     session.run(config, options: reset ? [.resetTracking, .removeExistingAnchors] : [])
   }
   private func removeAnchor() {

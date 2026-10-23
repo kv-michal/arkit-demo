@@ -10,6 +10,8 @@ Expo 58 is available, but Viro 3.0.3 declares Expo `>=57 <58` and RN `>=0.86 <0.
 - Small block: **20 × 9 × 10 cm**. Large block: **3 × 1.35 × 1.5 m**. Dimensions are width × depth × height.
 - Same mint color, PBR roughness 0.6, 60% opacity, opaque red bounding edges, and proportional rounded corners. The rounded OBJ uses the same physical dimensions and radius, although mesh tessellation and shading differ between engines.
 - Same 20 Hz surface-preview budget, projected viewer-facing wide edge, local surface slope, 60° incline limit, below-camera check, and 8 m range limit. Invalid hits hide the preview and disable anchoring.
+- Rectangle count matches native: 1–51, default 11 (center plus five left and five right), spaced by one width in the placed surface plane. Count and width remain adjustable after anchoring.
+- Occlusion defaults off, with a LiDAR-only toggle that preserves placement. It uses Viro’s depth-based renderer; native uses RealityKit mesh occlusion, so edge appearance differs between engines. Both keep mesh reconstruction active while occlusion is on.
 - Real ARKit anchor on placement; subsequent native anchor transforms drive the Viro node. Width can change after anchoring. Reposition removes the anchor. Placements are session-only.
 - LiDAR mesh defaults on when supported, is unavailable on non-LiDAR devices and while anchored, and resets scanning when switched. Off uses standard ARKit detection. This does not disable sensor hardware.
 
@@ -17,7 +19,7 @@ Expo 58 is available, but Viro 3.0.3 declares Expo `>=57 <58` and RN `>=0.86 <0.
 
 **Viro renders the 3D scene and camera; React Native renders the controls.** The local Expo module in `modules/floor-frame-session` locates Viro's existing ARKit session. It never creates another session, camera view, RealityKit view, or renderer. It applies the same ARKit configuration as Swift, samples a center `.estimatedPlane / .any` raycast, and adds/removes an ARAnchor. The surface-facing calculations run in TypeScript and match `../FloorFrame/SurfacePose.swift`.
 
-This bridge is needed because Viro's stock hit-test API and generic anchor attachment do not expose the exact behavior used by the Swift app. Viro's separate depth, collision-world-mesh and occlusion features remain off: the switch controls ARKit scene reconstruction directly, matching the Swift baseline without adding monocular inference or physics work.
+This bridge is needed because Viro's stock hit-test API and generic anchor attachment do not expose the exact behavior used by the Swift app. Viro's depth and collision-world-mesh switches remain off. The separate occlusion toggle enables Viro depth-based occlusion on LiDAR devices; the bridge preserves scene depth semantics and existing anchors when toggling it. The LiDAR mesh switch still controls reconstruction for placement independently, except that occlusion also requires reconstruction to stay active, matching the native app.
 
 This is a comparison of **React Native + Viro + a small ARKit bridge versus SwiftUI + RealityKit**, not an isolation of JavaScript overhead. RealityKit and Viro use different renderers, lighting, transparency sorting, mesh tessellation, and text/icon rendering. The Viro scene uses ambient/directional lighting; RealityKit uses its lighting environment. Visual output cannot be pixel-identical. UI icons are text glyphs in the RN version. No performance winner or measured FPS is asserted.
 

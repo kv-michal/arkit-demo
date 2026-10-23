@@ -38,6 +38,6 @@ The Debug build was signed and installed on the connected iPhone 16 Pro. Geometr
 
 ## React Native comparison app
 
-The Expo/Viro implementation is in [`floor-frame-viro/`](floor-frame-viro/README.md). It uses a separate bundle ID and can coexist with this app. Use Release configurations for both when comparing performance; see its README for parity details, renderer differences and a repeatable comparison procedure.
+The Expo/Viro implementation is in [`floor-frame-viro/`](floor-frame-viro/README.md). It uses a separate bundle ID and can coexist with this app. Use Release configurations for both when comparing performance; see its README for parity details, renderer differences and a repeatable comparison procedure. Both apps now default to 11 rectangles (five on each side) and occlusion off, with matching count and occlusion controls.
 
 The transparent block has 12 opaque red bounding-box edges to make floor penetration easier to see. Edge thickness is 3 mm for the 20 cm version and 3 cm for the 3 m version; the bottom of the outline matches the bottom of the block.

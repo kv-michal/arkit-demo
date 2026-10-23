@@ -3,12 +3,20 @@ import Session from "../modules/floor-frame-session";
 import { createStore } from "./store";
 import { Pose, poseFromMatrix, surfacePose, Vec3 } from "./surfacePose";
 
-export const modelStore = createStore<{ pose: Pose | null; width: number }>({
+export const occlusionStore = createStore(false);
+export const modelStore = createStore<{
+  pose: Pose | null;
+  width: number;
+  rectangleCount: number;
+}>({
   pose: null,
   width: 0.2,
+  rectangleCount: 11,
 });
 export const uiStore = createStore({
   large: false,
+  rectangleCount: 11,
+  occlusion: false,
   lidar: Session.supportsLiDAR,
   locked: false,
   ready: false,
@@ -97,6 +105,29 @@ export const placement = {
     updateUI({ large });
     modelStore.set({ ...modelStore.get(), width: large ? 3 : 0.2 });
   },
+  setRectangleCount(rectangleCount: number) {
+    const count = Math.min(51, Math.max(1, Math.round(rectangleCount)));
+    updateUI({ rectangleCount: count });
+    modelStore.set({ ...modelStore.get(), rectangleCount: count });
+  },
+  async setOcclusion(occlusion: boolean) {
+    const ui = uiStore.get();
+    if (ui.busy || !Session.supportsLiDAR) return;
+    generation++;
+    updateUI({ busy: true });
+    try {
+      await Session.configure(ui.lidar, false, occlusion);
+      occlusionStore.set(occlusion);
+      updateUI({ occlusion });
+    } catch (error) {
+      updateUI({
+        message: "Could not change occlusion",
+        detail: String(error),
+      });
+    } finally {
+      updateUI({ busy: false });
+    }
+  },
   async configure(lidar: boolean) {
     if (uiStore.get().busy) return;
     generation++;
@@ -110,7 +141,7 @@ export const placement = {
     });
     showPose(null);
     try {
-      await Session.configure(lidar, true);
+      await Session.configure(lidar, true, uiStore.get().occlusion);
     } catch (error) {
       updateUI({ message: "AR session stopped", detail: String(error) });
     } finally {

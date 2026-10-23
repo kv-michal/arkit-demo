@@ -19,7 +19,7 @@ import { StatusBar } from "expo-status-bar";
 import { ViroARSceneNavigator } from "@reactvision/react-viro";
 import Session from "./modules/floor-frame-session";
 import { FloorScene } from "./src/ARScene";
-import { placement, uiStore } from "./src/placement";
+import { occlusionStore, placement, uiStore } from "./src/placement";
 
 const INITIAL_SCENE = { scene: FloorScene };
 const GRADIENT = [
@@ -29,6 +29,7 @@ const GRADIENT = [
 ] as const;
 function FloorFrame() {
   const insets = useSafeAreaInsets();
+  const occlusion = occlusionStore.useValue();
   const [permission, requestPermission] = useCameraPermissions();
   const [active, setActive] = useState(AppState.currentState === "active");
   const granted = permission?.granted === true;
@@ -80,7 +81,7 @@ function FloorFrame() {
             provider="none"
             depthEnabled={false}
             worldMeshEnabled={false}
-            occlusionMode="disabled"
+            occlusionMode={occlusion ? "depthBased" : "disabled"}
             hdrEnabled
             pbrEnabled
             bloomEnabled={false}
@@ -168,6 +169,8 @@ function PlacementControls({
         <WidthButton large={false} selected={!ui.large} />
         <WidthButton large selected={ui.large} />
       </View>
+      <RectangleCountControl />
+      <OcclusionControl granted={granted} />
       <ModeControl granted={granted} />
       <Text style={s.dimensions}>
         {ui.large ? "3 × 1.35 × 1.5 m" : "20 × 9 × 10 cm"}
@@ -176,12 +179,58 @@ function PlacementControls({
     </BlurView>
   );
 }
+function RectangleCountControl() {
+  const { rectangleCount } = uiStore.useValue();
+  return (
+    <View style={s.modeRow} testID="rectangleCountStepper">
+      <Text style={[s.modeLabel, s.modeText]}>
+        Rectangles: {rectangleCount}
+      </Text>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Decrease rectangle count"
+        disabled={rectangleCount <= 1}
+        onPress={() => placement.setRectangleCount(rectangleCount - 1)}
+        style={[s.countButton, rectangleCount <= 1 && s.disabled]}
+      >
+        <Text style={s.segmentText}>−</Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Increase rectangle count"
+        disabled={rectangleCount >= 51}
+        onPress={() => placement.setRectangleCount(rectangleCount + 1)}
+        style={[s.countButton, rectangleCount >= 51 && s.disabled]}
+      >
+        <Text style={s.segmentText}>+</Text>
+      </Pressable>
+    </View>
+  );
+}
+function OcclusionControl({ granted }: { granted: boolean }) {
+  const ui = uiStore.useValue();
+  return (
+    <View style={s.modeRow}>
+      <Text style={[s.modeLabel, s.modeText]}>Occlusion</Text>
+      <Switch
+        accessibilityLabel="Occlusion"
+        testID="occlusionToggle"
+        value={ui.occlusion}
+        onValueChange={(value) => void placement.setOcclusion(value)}
+        disabled={!Session.supportsLiDAR || ui.busy || !granted}
+        trackColor={{ true: "#63e6c4" }}
+      />
+    </View>
+  );
+}
 function ModeControl({ granted }: { granted: boolean }) {
   const ui = uiStore.useValue();
   const description = Session.supportsLiDAR
     ? ui.lidar
       ? "Depth-assisted surfaces"
-      : "Standard ARKit surfaces"
+      : ui.occlusion
+        ? "Mesh active for occlusion"
+        : "Standard ARKit surfaces"
     : "Unavailable · using standard ARKit";
   return (
     <View style={s.modeRow}>
@@ -328,6 +377,14 @@ const s = StyleSheet.create({
   },
   selected: { backgroundColor: "#63636b" },
   segmentText: { color: "white", fontSize: 13, fontWeight: "500" },
+  countButton: {
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#ffffff20",
+    borderRadius: 8,
+  },
   modeRow: { flexDirection: "row", alignItems: "center", gap: 10 },
   modeText: { flex: 1, gap: 3 },
   modeLabel: { color: "white", fontSize: 15, fontWeight: "500" },

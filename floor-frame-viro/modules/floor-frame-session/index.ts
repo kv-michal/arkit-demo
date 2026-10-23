@@ -12,7 +12,7 @@ export type SessionSample = {
 };
 export default requireNativeModule<{
   readonly supportsLiDAR: boolean;
-  configure(lidar: boolean, reset: boolean): Promise<void>;
+  configure(lidar: boolean, reset: boolean, occlusion: boolean): Promise<void>;
   sample(): Promise<SessionSample>;
   anchor(matrix: number[]): Promise<boolean>;
   unanchor(): Promise<void>;

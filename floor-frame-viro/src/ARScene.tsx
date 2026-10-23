@@ -33,8 +33,7 @@ const DETECTION = ["PlanesHorizontal"];
 const DIRECTION: [number, number, number] = [0, -1, -0.4];
 
 export function FloorScene() {
-  const { pose, width } = modelStore.useValue();
-  const height = width * 0.5;
+  const { pose, width, rectangleCount } = modelStore.useValue();
   return (
     <ViroARScene anchorDetectionTypes={DETECTION} toneMappingEnabled={false}>
       <ViroAmbientLight color="#ffffff" intensity={600} />
@@ -46,19 +45,44 @@ export function FloorScene() {
       />
       {pose ? (
         <ViroNode position={pose.position} rotation={pose.rotation}>
-          <Viro3DObject
-            source={MODEL}
-            type="OBJ"
-            materials="block"
-            scale={[width, width, width]}
-            position={[0, height / 2 + 0.001, 0]}
-          />
-          <BoundingBox width={width} />
+          <RectangleRow width={width} count={rectangleCount} />
         </ViroNode>
       ) : null}
     </ViroARScene>
   );
 }
+
+// Keep the static row out of the 20 Hz pose reconciliation.
+const RectangleRow = memo(function RectangleRow({
+  width,
+  count,
+}: {
+  width: number;
+  count: number;
+}) {
+  return (
+    <ViroNode>
+      {Array.from({ length: count }, (_, index) => {
+        const offset =
+          index === 0
+            ? 0
+            : (index % 2 === 1 ? -1 : 1) * Math.ceil(index / 2) * width;
+        return (
+          <ViroNode key={offset} position={[offset, 0, 0]}>
+            <Viro3DObject
+              source={MODEL}
+              type="OBJ"
+              materials="block"
+              scale={[width, width, width]}
+              position={[0, width * 0.25 + 0.001, 0]}
+            />
+            <BoundingBox width={width} />
+          </ViroNode>
+        );
+      })}
+    </ViroNode>
+  );
+});
 
 // Reconcile the 12 static bars only when the selected size changes.
 const BoundingBox = memo(function BoundingBox({ width }: { width: number }) {
