@@ -19,6 +19,8 @@ import { StatusBar } from "expo-status-bar";
 import { ViroARSceneNavigator } from "@reactvision/react-viro";
 import { FloorScene } from "./src/ARScene";
 import { settingsStore, placement, uiStore } from "./src/placement";
+import { DiagnosticsPanel } from "./src/DiagnosticsPanel";
+import { diagnostics } from "./src/diagnostics";
 
 const INITIAL_SCENE = { scene: FloorScene };
 const GRADIENT = [
@@ -36,6 +38,7 @@ function FloorFrame() {
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (state) => {
+      diagnostics.record("app_state", { state }, true);
       setActive(state === "active");
       if (state !== "active") placement.suspend();
     });
@@ -44,6 +47,17 @@ function FloorFrame() {
   useEffect(() => {
     if (permission?.status === "undetermined") void requestPermission();
   }, [permission?.status, requestPermission]);
+  useEffect(() => {
+    diagnostics.record("camera_permission", { status: permission?.status, granted: permission?.granted, canAskAgain: permission?.canAskAgain }, true);
+  }, [permission?.status, permission?.granted, permission?.canAskAgain]);
+  useEffect(() => {
+    diagnostics.record("renderer_settings_committed", {
+      depthEnabled: settings.depth, worldMeshEnabled: settings.depth,
+      occlusionMode: settings.occlusion ? "depthBased" : "disabled",
+      sessionId: settings.sessionId, cameraGranted: granted, active,
+      worldAlignment: "Gravity", provider: "none", videoQuality: "High",
+    }, true);
+  }, [settings.depth, settings.occlusion, settings.sessionId, granted, active]);
   useEffect(() => {
     if (!granted || !active) return;
     let inFlight = false;
@@ -177,6 +191,7 @@ function PlacementControls({
         {ui.large ? "3 × 1.35 × 1.5 m" : "20 × 9 × 10 cm"}
       </Text>
       <AnchorButton granted={granted} denied={denied} />
+      <DiagnosticsPanel />
     </BlurView>
   );
 }

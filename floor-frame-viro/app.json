@@ -17,9 +17,10 @@
         "ITSAppUsesNonExemptEncryption": false
       }
     },
-    "platforms": [
-      "ios"
-    ],
+    "platforms": ["ios", "android"],
+    "android": {
+      "package": "cz.koval.floorframe.viro"
+    },
     "plugins": [
       [
         "@reactvision/react-viro",
@@ -45,7 +46,8 @@
             "enableSceneSupport": true
           }
         }
-      ]
+      ],
+      "expo-sharing"
     ]
   }
 }

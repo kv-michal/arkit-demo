@@ -49,6 +49,18 @@ npm run ios:release
 
 From the parent folder, `scripts/install-comparison.sh IPHONE_UDID` builds and installs both Release apps.
 
+## Sinking diagnostics (iOS and Android)
+
+Diagnostics start automatically with the app and continue after anchoring. Keep the same depth/occlusion settings when reproducing the issue. Tap **Mark sinking now** when the chain intersects the floor, then **Debug logs → Copy log** or **Share full log**. Sharing opens the system share sheet with a JSONL text attachment; it sends nothing automatically. Copy uses the clipboard on both platforms and includes recent complete records up to 350,000 characters to avoid Android clipboard transaction limits. Its status and export header say when it is truncated; sharing includes the entire buffered capture.
+
+The capture includes device/OS/build versions, actual committed renderer settings, tracking states/reasons, camera transforms and callback gaps, ambient lighting, feature counts/samples, depth readiness/capability/preference, world-mesh statistics, plane/anchor geometry, every bound-anchor correction, initial placement versus current pose, chain-end/corner heights, raw hit types/confidences/depth sources, the three samples used for depth-normal estimation, placement decisions/errors, resets, lifecycle events and user markers. Camera/preview snapshots run at 5 Hz; lighting/feature/mesh summaries at 1 Hz. Bound-anchor corrections are recorded for every delivered callback. Point samples and plane vertices are capped at 64 per event, and raw hit lists at 32 (16 for adjacent depth rays).
+
+While anchored, up to four extra diagnostic rays per second target the center, both chain ends and the nearest rectangle. Targets outside 0.1–8 m or a 60° forward cone are logged as skipped; no hit is a valid result. Signed normal clearance is negative when the estimated surface is above the block's bottom plane. These are Viro surface estimates, **not independent ground truth or the exact occlusion depth buffer**. Diagnostics never use those probe results to reposition geometry or change depth/occlusion settings. Raw depth images, native ARKit/ARCore internals and renderer FPS are not exposed by this capture; callback gaps measure JS arrival timing only.
+
+The in-memory buffer retains up to 6 million characters, plus at most 100 pinned events / 500,000 pinned characters; oldest records are evicted with counts in the header. Pinned events can duplicate stream records (deduplicate by `seq`). Export before terminating the app. No camera images or videos are collected. The cache attachment is replaced on each share.
+
+New clipboard/file/sharing modules require a **native rebuild** on both platforms. iOS: `npm run ios:release`. Android: `npm run android:release` on an ARCore-capable device with the Android SDK configured. Android has been enabled in Expo config with package `cz.koval.floorframe.viro`; live device behavior and native compilation must still be verified on each platform.
+
 ## Verification
 
 ```sh

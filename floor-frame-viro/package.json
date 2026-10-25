@@ -8,8 +8,11 @@
     "expo-blur": "~57.0.3",
     "expo-build-properties": "~57.0.22",
     "expo-camera": "~57.0.6",
+    "expo-clipboard": "~57.0.2",
+    "expo-file-system": "~57.0.7",
     "expo-haptics": "~57.0.3",
     "expo-linear-gradient": "~57.0.2",
+    "expo-sharing": "~57.0.24",
     "expo-status-bar": "~57.0.1",
     "react": "19.2.3",
     "react-native": "0.86.3",
@@ -19,15 +22,20 @@
     "start": "expo start",
     "ios": "expo run:ios --device",
     "ios:release": "expo run:ios --device --configuration Release",
+    "android": "expo run:android --device",
+    "android:release": "expo run:android --device --variant release",
     "prebuild": "expo prebuild --platform ios",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
-    "doctor": "npx --yes react-doctor@latest --verbose"
+    "doctor": "npx --yes react-doctor@latest --verbose",
+    "lint": "expo lint"
   },
   "private": true,
   "devDependencies": {
     "@types/node": "^24.19.2",
     "@types/react": "~19.2.10",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~57.0.2",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3"
   }

@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo, useEffect, useMemo } from "react";
 import {
   ViroARScene,
   ViroAmbientLight,
@@ -9,6 +9,8 @@ import {
   ViroMaterials,
 } from "@reactvision/react-viro";
 import { modelStore, placement } from "./placement";
+import { rectangleOffset } from "./diagnosticGeometry";
+import { diagnostics } from "./diagnostics";
 
 ViroMaterials.createMaterials({
   block: {
@@ -28,21 +30,34 @@ ViroMaterials.createMaterials({
     readsFromDepthBuffer: true,
   },
 });
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- Metro resolves this static native OBJ asset.
 const MODEL = require("../assets/block.obj");
 const DETECTION = ["PlanesHorizontal"];
 const DIRECTION: [number, number, number] = [0, -1, -0.4];
+// Stable callback invoked by React at commit/unmount, outside render.
+function attachScene(scene: ViroARScene | null) {
+  placement.attachScene(scene);
+}
 
 export function FloorScene() {
   const { pose, width, rectangleCount } = modelStore.useValue();
+  useEffect(() => {
+    if (diagnostics.due("react_pose_commit", 200)) diagnostics.record("react_pose_committed", { pose, width, rectangleCount });
+  }, [pose, width, rectangleCount]);
   return (
     <ViroARScene
-      ref={placement.attachScene}
+      ref={attachScene}
       anchorDetectionTypes={DETECTION}
       toneMappingEnabled={false}
       onTrackingUpdated={placement.trackingUpdated}
-      onAnchorFound={placement.anchorUpdated}
+      onAnchorFound={placement.anchorFound}
       onAnchorUpdated={placement.anchorUpdated}
       onAnchorRemoved={placement.anchorRemoved}
+      onCameraTransformUpdate={placement.cameraUpdated}
+      onAmbientLightUpdate={placement.lightUpdated}
+      onARPointCloudUpdate={placement.pointCloudUpdated}
+      onPlatformUpdate={placement.platformUpdated}
+      onDepthReady={placement.depthReady}
     >
       <ViroAmbientLight color="#ffffff" intensity={600} />
       <ViroDirectionalLight
@@ -71,10 +86,7 @@ const RectangleRow = memo(function RectangleRow({
   return (
     <ViroNode>
       {Array.from({ length: count }, (_, index) => {
-        const offset =
-          index === 0
-            ? 0
-            : (index % 2 === 1 ? -1 : 1) * Math.ceil(index / 2) * width;
+        const offset = rectangleOffset(index, width);
         return (
           <ViroNode key={offset} position={[offset, 0, 0]}>
             <Viro3DObject
@@ -83,6 +95,8 @@ const RectangleRow = memo(function RectangleRow({
               materials="block"
               scale={[width, width, width]}
               position={[0, width * 0.25 + 0.001, 0]}
+              onLoadEnd={(event) => diagnostics.record("model_load_end", { offset, width, result: event.nativeEvent })}
+              onError={(event) => diagnostics.record("model_load_error", { offset, width, error: event.nativeEvent }, true)}
             />
             <BoundingBox width={width} />
           </ViroNode>
