@@ -157,7 +157,7 @@ At the inspected diagnostics commit:
 
 The stability goal is complete only after testing a rebuilt app on a physical device: place once with the main long edge perpendicular to the user's initial viewing direction, use the floor inclination, keep the row rigid, walk along its X direction for at least 20 m, inspect intermediate/far rectangles with occlusion enabled, and return toward the start. Capture the video and Viro log, including a sinking marker if it occurs. Test level ground and a known consistent incline separately from changing/uneven terrain.
 
-The acceptable positional/angular error at 20 m has **not yet been specified**. Record an agreed tolerance and measured results before claiming the requirement is met. Phone movement must not trigger intentional re-facing/replacement; numerical tracking corrections must be assessed by their physical result.
+The user has specified approximately **20 cm positional accuracy**, with floor pitch **as precise as possible** because its error grows over 20 m. A numeric angular tolerance has not been specified by the user. The [implementation plan](IMPLEMENTATION_PLAN.md) proposes a 0.10 degree inclination target (0.05 degree stretch target), an error budget, calibration/anchor changes and independent physical validation. These are planned engineering targets, not implemented or demonstrated capabilities. Phone movement must not trigger intentional re-facing/replacement; numerical tracking corrections must be assessed by their physical result.
 
 ## 9. Maintaining this reference
 
