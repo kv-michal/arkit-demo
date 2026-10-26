@@ -8,6 +8,8 @@ Date: **2026-10-26**. Based on the implementation described in [PROJECT_STATE.md
 
 The user places the main rectangle in front of them, with its long edge perpendicular to their initial viewing direction. User orientation supplies **yaw only**; floor geometry supplies inclination. The user then walks along the long-edge/row direction, including at least 20 m from the starting rectangle. The row remains one rigid object with stable physical registration. Occlusion stays enabled for the sinking test.
 
+**Always treat the floor as potentially pitched.** Use one placement/calibration flow that measures the real floor inclination. Gravity defines the vertical reference for yaw and angle measurement; it does not determine the floor normal. There is no separate level-ground mode or horizontal fallback in this plan. If the floor inclination cannot be measured adequately, report insufficient calibration rather than assume zero pitch. A zero-pitch result is valid only when supported by floor measurements.
+
 The user's positional accuracy requirement is approximately **20 cm**. Their angular requirement is floor pitch **as precise as possible**, because a small angular error becomes a large distant height error. The user has not specified an exact angular number. Adopt the following measurable engineering targets for implementation/evaluation:
 
 | Quantity | Proposed target | Meaning |
@@ -19,9 +21,9 @@ The user's positional accuracy requirement is approximately **20 cm**. Their ang
 | Full orientation error allocation at radius 20 m | At most 0.14 degrees | Includes heading, inclination and tracking effects together. Per-axis targets do not replace this combined check. |
 | Heading error guide | About 0.10 degrees or better | Yaw error also creates lateral displacement at the far end; it cannot consume the entire positional allowance. |
 
-For a near-level row extending a horizontal distance L, vertical error from inclination error is approximately `L * tan(angleError)`. For arbitrary 3D geometry, use the conservative rotation displacement bound `2 * R * sin(rotationError / 2)`, with R the distance of the tested vertex from the placement origin.
+For a row on a pitched plane, the vertical component of an angular error depends on the actual inclination. Use the slope-independent rotation displacement bound `2 * R * sin(rotationError / 2)`, with R the distance of the tested vertex from the placement origin. This bounds the 3D displacement from rotation on any plane inclination and therefore also bounds its vertical component. It does not assume level ground.
 
-| Inclination error | Height error over 20 m, near level |
+| Inclination error | Maximum rotation-induced displacement at radius 20 m |
 | --- | --- |
 | 0.05 degrees | 1.75 cm |
 | 0.10 degrees | 3.49 cm |
@@ -82,7 +84,7 @@ Validate orthogonality, determinant +1, finite values, and upward normal. This d
 
 Define `alongRowInclination = atan2(dot(x, g), length(x - dot(x, g) * g))`. This is the height-changing angle relevant when walking along local X. Record the complete floor normal and cross-slope too. A full floor normal can introduce multiple Euler components; no component may originate from copying the user's phone pitch/roll. Do not mistakenly assume the model's X-axis Euler “pitch” alone controls vertical change along the row.
 
-Latch the origin candidate and initial heading **before asking the user to move during calibration**. Subsequent camera movement gathers evidence; it cannot redefine the user's chosen yaw. Gravity-zero tilt is an optional explicit level-floor mode, not an automatic replacement for a genuine incline.
+Latch the origin candidate and initial heading **before asking the user to move during calibration**. Subsequent camera movement gathers evidence; it cannot redefine the user's chosen yaw. Preserve the measured floor inclination, including a genuine nonzero pitch. Gravity supplies the coordinate reference only; insufficient floor evidence must never substitute a gravity-horizontal model.
 
 ## 4. Calibration state machine
 
@@ -210,7 +212,7 @@ Any added SDK/API must be verified against the installed version before implemen
 
 ### Automated gates
 
-- Recover known flat and inclined planes under controlled noise, uneven sampling, gross outliers, depth discontinuities and source bias; reject collinear/insufficient support. Include biased fixtures that remain low-residual so the quality gate is not mistaken for absolute truth.
+- Recover known pitched planes, including compound inclines, under controlled noise, uneven sampling, gross outliers, depth discontinuities and source bias; reject collinear/insufficient support. Include zero pitch as a measured edge case of the same estimator, not a separate placement mode. Include biased fixtures that remain low-residual so the quality gate is not mistaken for absolute truth.
 - Verify yaw in horizontal plan view at several headings and compound floor inclines. Changing camera height/downward angle while retaining the selected location/heading must not introduce phone pitch/roll into placement.
 - Feed identical synthetic fixtures to Swift and TS. Compare plane normal, long-axis heading, origin, along-row inclination and corner positions with declared numeric tolerances.
 - Exercise anchor creation where hit pose and actual anchor pose differ. First render must preserve the intended placement rather than jump. Replay coordinate-frame corrections and verify relative geometry remains invariant.
@@ -226,7 +228,7 @@ Use at least 15 rectangles at 3 m width for centers beyond 20 m. Place the main 
 
 Run at least five independent placements per app/device/route condition as an initial evaluation. Report every run, maximum and percentile registration errors, measured inclination bias/drift, heading error, uncertainty, tracking losses and completion rate. Five runs are an engineering screen, not a production reliability estimate. All measured checkpoints in a passing run must meet the proposed 20 cm positional and 0.10 degree inclination criteria; do not hide failures in an average.
 
-Evaluate native iOS, Viro iOS and Viro Android separately. Separate LiDAR/depth backends, level ground, a known consistent incline, lighting/texture conditions and changing terrain. Include the original dark/reflective-pavement condition as a difficult scenario; a pass on a bright textured floor does not establish a pass there. Report unsupported or inadequate calibration explicitly.
+Evaluate native iOS, Viro iOS and Viro Android separately. Make known nonzero inclines and compound inclines primary acceptance scenarios; include measured zero pitch as an additional estimator edge case. Separate LiDAR/depth backends, lighting/texture conditions and changing terrain. Include the original dark/reflective-pavement condition as a difficult scenario; a pass on a bright textured floor does not establish a pass there. Report unsupported or inadequate calibration explicitly.
 
 Observe positional alignment and floor clipping as different outcomes. A registered rigid model can intersect real non-planar pavement; noisy occlusion can also clip it. Meeting the position budget alone does not certify the occlusion depth model.
 

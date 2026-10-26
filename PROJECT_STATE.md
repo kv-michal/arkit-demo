@@ -12,6 +12,7 @@ Required orientation inputs:
 
 - **User supplies yaw only:** the main rectangle's long edge is across the user, perpendicular (90 degrees) to the user's initial viewing direction. The row continues along that long edge.
 - **Floor supplies pitch/tilt:** the rectangle follows the floor's inclination at placement. The user's phone pitch or roll must not independently tilt the model. Pointing the phone down selects a floor location; it is not an instruction to lean the rectangle.
+- **The floor is always potentially pitched:** measure its real inclination in one calibration flow. Gravity establishes the vertical reference, not an assumed horizontal floor. A separate level-ground mode or zero-pitch fallback is not part of the required solution; insufficient inclination evidence means calibration is not ready.
 - **Placement is committed once:** after anchoring, moving or turning the user/phone must not make the row face the user again, select a new placement, or intentionally change its chosen floor inclination.
 - **The whole row remains rigid:** rectangles preserve their dimensions, spacing and orientation relative to each other. The desired result remains registered to the physical environment while the user walks along it.
 - **Occlusion remains usable:** the user must be able to see genuine floor intersections with occlusion enabled. Hiding the symptom by disabling occlusion or lifting the row is not an accepted solution to stability.
