@@ -14,11 +14,12 @@ The user's positional accuracy requirement is approximately **20 cm**. Their ang
 
 | Quantity | Proposed target | Meaning |
 | --- | --- | --- |
-| Physical registration error | At most 0.20 m at measured checkpoints during a 20 m walk | Evaluate model reference points against independently known physical locations, not just changes in the root transform. Treat this as the proposed operational interpretation of the user's approximately 20 cm requirement. |
+| Horizontal registration error | At most 0.20 m at measured checkpoints during a 20 m walk | Along-row and cross-row error of model reference points against independently known physical locations, not just changes in the root transform. Treat this as the proposed operational interpretation of the user's approximately 20 cm requirement. |
+| Vertical registration error | Proposed: at most 0.02 m for 3 m blocks; 0.005 m for 20 cm blocks | Signed vertical separation between the intended bottom plane and independently measured floor at each checkpoint. These are size-specific evaluation targets, not user-approved requirements or demonstrated capabilities. |
 | Total along-row inclination error | At most 0.10 degrees | Actual rendered slope versus independently measured reference slope, including calibration and tracking effects. |
 | Stretch inclination target | 0.05 degrees | Pursue only if repeatable physical measurements support it. |
-| Root translation error allocation | At most 0.10 m | Internal budget stricter than the overall 20 cm target; leaves room for angular effects. |
-| Full orientation error allocation at radius 20 m | At most 0.14 degrees | Includes heading, inclination and tracking effects together. Per-axis targets do not replace this combined check. |
+| Root horizontal translation error allocation | At most 0.10 m | Internal horizontal budget; this does not permit 10 cm of vertical translation. |
+| Full orientation diagnostic | Report displacement at radius 20 m | 0.14 degrees produces about 4.9 cm of 3D displacement. This illustrative number is not sufficient to pass the tighter vertical criterion. |
 | Heading error guide | About 0.10 degrees or better | Yaw error also creates lateral displacement at the far end; it cannot consume the entire positional allowance. |
 
 For a row on a pitched plane, the vertical component of an angular error depends on the actual inclination. Use the slope-independent rotation displacement bound `2 * R * sin(rotationError / 2)`, with R the distance of the tested vertex from the placement origin. This bounds the 3D displacement from rotation on any plane inclination and therefore also bounds its vertical component. It does not assume level ground.
@@ -33,7 +34,18 @@ For a row on a pitched plane, the vertical component of an angular error depends
 
 A 0.57 degree error already consumes approximately all 20 cm at 20 m before any translation or yaw error. It is not an appropriate pitch target.
 
-Proposed conservative budget at R = 20 m: 10 cm root translation + approximately 4.9 cm from 0.14 degrees total rotation + 5 cm reserve = approximately 19.9 cm. These are allocations; they are not independent sensor guarantees. Occlusion errors and real ground curvature must also be reported separately rather than silently counted as model tracking accuracy.
+Illustrative horizontal allocation at R = 20 m: 10 cm root horizontal translation + at most about 5 cm rotation-induced horizontal displacement + 5 cm reserve = 20 cm. This is not a shared 3D budget: vertical error must pass its own tighter limit. Occlusion errors and real ground curvature must also be reported separately rather than silently counted as model tracking accuracy.
+
+### Split vertical and horizontal budgets
+
+A single 20 cm bound is too loose for the reported symptom. Sinking is a vertical error judged against the floor right next to the user: 20 cm buries a large part of a 1.5 m-tall 3 m block and exceeds the whole 10 cm height of a 20 cm block. Horizontal and vertical error are therefore budgeted and reported separately.
+
+- **Horizontal:** the 20 cm allocation above applies to along-row and cross-row error.
+- **Vertical:** for a row length L, initial along-row inclination alpha and angle error delta, the endpoint's height change due to angle alone is `L * (sin(alpha + delta) - sin(alpha))`. Add origin-height and vertical tracking errors, with conservative absolute bounds instead of assuming their signs cancel. The earlier `L * tan(delta)` shortcut applies approximately near zero inclination; it must not be treated as the formula for every pitched plane.
+- **Large blocks, proposed 2 cm:** a 0.10 degree error can contribute 3.49 cm at 20 m and therefore already exceeds this vertical target. If half the 2 cm allowance goes to angle, its conservative allowance at radius 20 m is about 0.029 degrees; the remaining 1 cm must cover origin height, tracking drift and measurement uncertainty.
+- **Small blocks, proposed 5 mm:** the 10 cm-tall blocks need a stricter visible-clipping criterion. The current small-block row cannot reach 20 m; test its actual rendered radius. These targets require independent measurement and may be infeasible with the available hardware.
+
+The height limits are proposals for evaluating visible sinking, not established product tolerances. Confirm them with the user before presenting them as a product acceptance contract. Keep 0.10/0.05 degrees as intermediate calibration research targets, not sufficient conditions for a height pass. Local calibration may not meet even those angular targets: the first physical tests must measure that before building the full estimator. A run passes only the criteria it actually meets; unused horizontal allowance cannot absorb vertical error. Even 2 cm of clipping can remain visible, so record geometric error and occlusion appearance separately.
 
 Recompute the angular allowance for the **actual farthest rendered point**:
 
@@ -56,7 +68,7 @@ worldFromRow(t) = worldFromReference(t) * referenceFromRowAtCommit
 worldFromRectangle_i(t) = worldFromRow(t) * rowFromRectangle_i
 ```
 
-After commit, new floor rays are diagnostics only. They cannot change `referenceFromRowAtCommit`, re-face the model toward the moving user, or fit individual rectangles to the ground. All rectangles share the same root transform.
+In the baseline mode, post-commit floor rays are diagnostics only. They cannot change `referenceFromRowAtCommit`, re-face the model toward the moving user, or fit individual rectangles to the ground. All rectangles share the same root transform. Section 7 specifies a separate proposed experiment that applies one shared gravity-axis height correction, without changing the committed yaw, inclination or local layout. Its terrain-following tradeoff remains an explicit product decision; listing the experiment does not adopt it as normal behavior.
 
 **Freeze the chosen relationship, not every numeric world coordinate.** Anchor updates may be necessary to maintain physical registration as tracking coordinates change. ARCore explicitly distinguishes a session/world anchor from attachment to a refining trackable surface. Prefer a free/session anchor for the rigid placement where the framework permits it, rather than intentionally welding the model to subsequent floor-plane refinements. [ARCore anchor behavior](https://developers.google.com/ar/develop/anchors).
 
@@ -108,6 +120,8 @@ The desired immediate “place, then walk” interaction is retained whenever ca
 
 ## 5. Floor-plane estimator
 
+**Conditional workstream:** implement this full estimator only after the early out-and-back experiment in section 10 shows an initial-angle problem and a smaller sampling prototype demonstrates useful improvement. Do not build RANSAC, a new placement state machine and duplicate production estimators in both languages merely to discover that the dominant error was vertical translation during walking. First replay captured data in one small offline prototype; port validated math using shared fixtures only when justified.
+
 ### Sampling and coordinate consistency
 
 Collect points across a floor region, not just three adjacent depth rays. Proposed initial region: approximately 2–4 m across the row direction and at least 1 m across its depth direction, within locally reliable sensing range. Actual coverage is measured from valid points; a sampling grid alone does not establish a physical baseline.
@@ -146,10 +160,18 @@ Keep direct `AnchorEntity(anchor:)` attachment. Create the reference anchor afte
 
 ### Viro app
 
-Replace the assumption that the hit-test pose is the created anchor's initial pose:
+Replace the assumption that the hit-test pose is the created anchor's initial pose.
+
+**Finding from the installed Viro 3.0.3 source** (inspected, not yet tested on a device): on iOS, `createAnchoredNodeFromHitResult` in `VRTARSceneModule.mm` creates the anchor via `createAnchoredNodeAtHitLocation()` and already returns that anchor's own transform in `node.transform`, read from `anchor->getTransform()`. The current app logs this value but builds `anchorBinding.initial` from the hit transform instead (`placement.ts`). Format differences must be handled before using it:
+
+- iOS fills `transform.rotation` with four quaternion values `[X, Y, Z, W]`. The TypeScript type `ViroARNodeReference.transform.rotation` declares `ViroRotation`, a three-number tuple, and the anchor callbacks deliver Euler degrees that `transformMatrix` consumes. Passing the returned rotation into `transformMatrix` unchanged would be wrong.
+- Viro on iOS creates anchors from the older `ARHitTestResult` API. The native app uses `ARRaycastQuery`. This is a comparison difference, not by itself a defect.
+- The Android implementation was not found as readable source in the installed package; its return format must be checked on a device.
+
+Steps:
 
 1. Save the intended calibrated world pose and request creation using an eligible hit.
-2. Wait for a usable transform associated with the returned anchor ID: validate the returned node transform against the first matching anchor callback. Log both and verify the installed API's semantics.
+2. Build the baseline from the actual anchor: convert `node.transform` (quaternion on iOS) to a matrix, and validate it against the hit transform and the first matching anchor callback. Log all three. If they disagree beyond tolerance, prefer the anchor's own transform and record the difference; that difference measures the current baseline-mismatch hypothesis directly.
 3. Establish the anchor and desired placement in a consistent coordinate epoch. If the asynchronous creation spans a tracking discontinuity, restart/recover the transaction instead of multiplying transforms from different frames.
 4. Store `anchorFromRow = inverse(worldFromAnchorAtCommit) * worldFromRowAtCommit`.
 5. For matching updates, render `worldFromAnchorNow * anchorFromRow` for the whole row. Never assign each rectangle its own unconstrained correction.
@@ -160,7 +182,37 @@ A correct baseline prevents a transform bookkeeping error; it does not eliminate
 
 ## 7. Twenty-metre tracking strategy and escalation
 
-**First milestone:** robust calibration plus a correct single-anchor attachment, then measure. A single reference is a testable baseline, not the guaranteed final long-range solution. ARCore recommends keeping objects within about 8 m of their anchor and warns that separate anchors can move relative to each other. [Anchor distance and rigidity guidance](https://developers.google.com/ar/develop/anchors).
+### Vertical tracking drift: the main unaddressed hypothesis
+
+Gravity constrains tracking orientation, but this does not guarantee negligible tilt error, nor does it establish which error dominates in these apps. Height/position, heading and anchor pose errors can all affect registration. Even with a correct initial floor angle, a change in the estimated camera/anchor vertical relationship can make farther rectangles appear to sink or float. Whether the error is 5–15 cm, smaller, or larger must be measured; no drift magnitude or monotonic growth with distance is assumed. World-coordinate corrections can also change numeric poses without worsening physical registration. [ARKit world-tracking limitations](https://developer.apple.com/documentation/arkit/understanding-world-tracking), [ARCore coordinate updates](https://developers.google.com/ar/reference/java/com/google/ar/core/Pose).
+
+This is a hypothesis, not a measured cause. It matters because better initial inclination addresses the initial angular contribution, not vertical position changes that occur later. Investigate it with the walk-and-return test (section 10, step 2):
+
+- **Initial angle bias:** a spatial error gradient is consistent with the measured initial inclination error. At the same physical checkpoint, a pure static bias is similar outbound and inbound. Calibration can vary across placements; repeatability between runs is not required.
+- **Vertical drift:** the same physical checkpoint changes error with path/time, including on return, or camera/anchor registration changes despite an independently verified initial angle. Return-to-start recovery supports a drift hypothesis but does not prove it; no recovery does not rule it out.
+- **Occlusion discrepancy:** independently checked model geometry aligns with the reference while visible edges/faces are hidden incorrectly. Keep occlusion enabled for the normal experiment; logs do not currently read back its exact depth buffer.
+- **Mixed/undetermined:** angle bias, tracking errors, terrain and occlusion can coexist. An out-and-back walk provides discrimination, not guaranteed causal identification without physical references.
+
+**Candidate mitigation, not adopted: gated rigid height correction.** While locked, use the floor observed near the user (diagnostic rays already exist in the Viro app) to estimate one shared vertical offset for the whole row, and apply it to the root transform only. This keeps the row rigid, never changes yaw or inclination, and never fits individual rectangles. It conflicts with the current "post-commit floor rays are diagnostics only" rule (section 2) and cannot tell tracking drift apart from a real change in ground height or slope along the route. Adopting it is a product decision for the user. If evaluated, it must:
+
+- run in an explicitly named mode, with the uncorrected mode kept for comparison;
+- correct translation along gravity only, with a rate limit and an uncertainty gate;
+- reject observations with unstable normals, depth discontinuities, poor tracking, stale coordinate epochs or inadequate spatial support; slope disagreement can flag terrain change but slope agreement cannot prove an unchanged plane;
+- log every correction, and be judged by measured vertical error at checkpoints, not by visual smoothness.
+
+Implement the candidate as a separate scalar correction composed after ordinary anchor transport:
+
+```text
+baseWorldFromRow = worldFromReferenceNow * referenceFromRowAtCommit
+correctedWorldFromRow = translation(gravityUpNow * deltaY) * baseWorldFromRow
+worldFromRectangle_i = correctedWorldFromRow * rowFromRectangle_i
+```
+
+Compute residuals against the **uncorrected** bottom plane in the same current coordinate epoch. For a plane `n dot p + d = 0` and floor observation p, the gravity-axis offset that raises the plane to p is `r = (n dot p + d) / dot(n, gravityUp)`. Estimate an absolute deltaY from a robust, time-bounded group of accepted residuals, not by repeatedly adding residuals and creating an integrator. Preserve the existing 1 mm base offset explicitly in the residual convention. Require a sufficient upward denominator, source-specific confidence/support, an empirically tuned deadband, a rate limit and a cumulative correction cap. Log raw residuals, proposed/applied offsets, gate failures, timestamps and source. Keep a shadow estimate with no rendering effect before enabling corrections.
+
+Do not encode unmeasured filter constants as accuracy claims. On tracking/reference loss, stop updates and mark the correction stale; recover its coordinate epoch before resuming. A single vertical offset can improve the nearby floor match while worsening the start or far end. Measure all checkpoints in both modes, not just the user's current location. A parallel step or depth bias can produce the same residual as drift even when normals agree: the experiment explicitly assumes the original pitched plane continues. That ambiguity cannot be removed by a gate using the same floor measurements.
+
+**First milestone:** comparable logs and an independently referenced out-and-back test using the existing placement flow. Preserve the current pitched-floor estimate for this baseline; do not introduce a level-floor placement mode. Then choose a workstream from the evidence. A single reference is a testable baseline, not the guaranteed final long-range solution. ARCore recommends keeping objects within about 8 m of their anchor and warns that separate anchors can move relative to each other. [Anchor distance and rigidity guidance](https://developers.google.com/ar/develop/anchors).
 
 If physical tests exceed the budget, add evidence before adding correction logic:
 
@@ -226,19 +278,21 @@ Use independently measured, repeatable control points along a known planar route
 
 Use at least 15 rectangles at 3 m width for centers beyond 20 m. Place the main rectangle once, capture the initial pose, walk along local X to 20 m, inspect each checkpoint with occlusion enabled, turn/view from another angle, and return to the start. Include the opposite row direction where physically possible. A video alone is not a metric 3D registration measurement; use measured targets/visual references and a recorded coordinate-alignment procedure. References used for the test must not feed the tracking algorithm unless this is explicitly an external-reference-mode test.
 
-Run at least five independent placements per app/device/route condition as an initial evaluation. Report every run, maximum and percentile registration errors, measured inclination bias/drift, heading error, uncertainty, tracking losses and completion rate. Five runs are an engineering screen, not a production reliability estimate. All measured checkpoints in a passing run must meet the proposed 20 cm positional and 0.10 degree inclination criteria; do not hide failures in an average.
+Run at least five independent placements per app/device/route condition as an initial evaluation. Report every run, maximum and percentile registration errors, measured inclination bias/drift, heading error, uncertainty, tracking losses and completion rate. Five runs are an engineering screen, not a production reliability estimate. A height-acceptance pass requires both the horizontal target and the applicable proposed vertical target, including measurement uncertainty. Merely meeting the intermediate 0.10 degree angle target does not establish a vertical pass. Do not hide failures in an average.
 
 Evaluate native iOS, Viro iOS and Viro Android separately. Make known nonzero inclines and compound inclines primary acceptance scenarios; include measured zero pitch as an additional estimator edge case. Separate LiDAR/depth backends, lighting/texture conditions and changing terrain. Include the original dark/reflective-pavement condition as a difficult scenario; a pass on a bright textured floor does not establish a pass there. Report unsupported or inadequate calibration explicitly.
+
+Report horizontal and vertical error separately at every checkpoint, against their separate budgets. Record vertical error on the way out and on return to the start, so that initial-angle bias and vertical drift can be told apart (section 7).
 
 Observe positional alignment and floor clipping as different outcomes. A registered rigid model can intersect real non-planar pavement; noisy occlusion can also clip it. Meeting the position budget alone does not certify the occlusion depth model.
 
 ## 10. Delivery sequence and definition of done
 
-1. **Baseline evidence:** obtain current diagnostic logs and physical reference measurements. Completion: at least one recorded reproduction with checkpoint/reference data, or a documented non-reproduction condition.
-2. **Math and fixtures:** implement/test explicit yaw composition and broad-plane calibration. Completion: shared Swift/TS fixtures pass, including rejection and bias cases.
-3. **Creation transaction:** correct/verify Viro anchor baseline and compare with native attachment. Completion: offset-anchor and world-coordinate-change replay tests pass without placement jumps.
-4. **Calibration UI and immutable commit:** implement state machine, latch user yaw, quality gates and locked diagnostics separation. Completion: real call-site tests pass and both app flows operate on physical devices.
-5. **20 m evaluation:** run independent physical tests against the proposed budgets. Completion: per-device results are recorded, including failures and limits; unsupported accuracy claims remain disabled.
-6. **Escalation if necessary:** prototype independent references or a documented native Viro adapter when evidence shows a specific capability/accuracy gap. Completion: comparative measurements show whether it actually improves the failed metric while preserving one rigid row.
+1. **Minimum comparable instrumentation:** implement a small native Swift recorder/exporter before changing placement algorithms. Match Viro's JSONL schema/version, units, monotonic/UTC timestamps and shared event meanings for camera/anchor poses, initial/committed placement, tracking changes, chain-bottom geometry, user marker and copy/share. Keep engine-specific data namespaced, and distinguish native frame timestamps from JS receipt times. The existing Viro recorder can support an immediate first walk; do not delay that useful measurement until the native recorder is complete. Completion: both rebuilt apps can export a physical-device capture that a common reader can align with the recording; native compilation and device export are actually checked. This is explicitly part of the first milestone, not a late table entry.
+2. **Cheap out-and-back experiment:** using the existing flow, place once on a measured route with a known consistent **nonzero pitch**, walk 20 m along X and return, with occlusion enabled. Measure repeat visits to 0/5/10/15/20 m checkpoints and mark symptoms in both apps. Keep yaw/width/count/settings consistent. Completion: comparable logs and independent checkpoint evidence support an initial-angle, vertical/heading-drift, anchor-baseline, occlusion, mixed or undetermined classification. A documented non-reproduction is also a result. No full plane fitter, calibration UI or dual-language estimator is a prerequisite.
+3. **Choose a focused workstream:** if initial slope bias dominates, first replay captured data through one offline sampling/plane-fit prototype and compare with the current normal estimator. If anchor bookkeeping differs, first verify/fix the actual-anchor baseline and iOS quaternion conversion (section 6). If path-dependent vertical error dominates, first evaluate a no-rendering height-correction shadow estimator on a known continuing pitched plane. Heading or mixed errors may need independent references. Completion: record the evidence and expected metric for the selected change; do not automatically build every workstream.
+4. **Smallest justified implementation:** add explicit yaw-composition math with fixtures; add the broader floor estimator/state machine only if the prototype measurably helps. Port validated math across Swift/TS using shared fixtures. If the height experiment is selected, retain an uncorrected comparison mode and make its terrain assumption explicit before adopting it as product behavior. Completion: real call-site tests preserve one rigid root, chosen yaw/inclination and correct anchor transport; neither production app gains an unexplained architecture change.
+5. **Repeat independent 20 m evaluation:** measure both apps/device backends against separate horizontal and height budgets, including outbound/inbound checkpoint differences and uncertainty. Completion: per-run results identify improvements, regressions, failure cases and unverified targets. Angle/position claims remain limited to measured results.
+6. **Escalate when evidence demands it:** evaluate surveyed references, native sampling/attachment adapters or constrained reference fusion for an identified unresolved error. Completion: controlled comparisons improve that physical metric while preserving one rigid row. A smoother animation, extra anchors alone or a lower fit residual does not complete this step.
 
 Update PROJECT_STATE.md after each implemented milestone. An implementation is not complete because the row stops visibly moving in tracking coordinates or because a filter makes it look smoother. Completion requires measured physical registration around the user's 20 cm target and demonstrated angular accuracy over the required span, with the original yaw/floor-inclination contract preserved.
