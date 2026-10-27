@@ -1,5 +1,7 @@
 # Floor Frame
 
+The [project state and intended behavior](PROJECT_STATE.md) is the core reference for both apps, the placement/orientation contract, the 20 m walking goal, and unresolved stability issues. This README covers native-app operation and build instructions.
+
 Native iPhone AR app built with SwiftUI, RealityKit, and ARKit. Open `FloorFrame.xcodeproj` in Xcode, choose your signing team, select an ARKit-capable iPhone, and run. No third-party app dependencies.
 
 ## Use

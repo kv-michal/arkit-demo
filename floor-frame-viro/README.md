@@ -1,5 +1,7 @@
 # Floor Frame — stock Viro comparison
 
+Read the [project state and intended behavior](../PROJECT_STATE.md) for the authoritative comparison of both apps, the yaw/floor-inclination contract, the 20 m walking goal, and current stability/verification gaps. This README provides Viro-specific operation and build details.
+
 Expo 57 / React Native 0.86 / **@reactvision/react-viro 3.0.3**, installed as **Floor Frame Viro** (`cz.koval.floorframe.viro`) alongside native **Floor Frame**.
 
 **No custom native module, ARKit bridge, library patch, or secondary AR session.** Viro owns the camera, session, hit tests, anchors, depth, mesh and occlusion. React Native draws the controls; TypeScript handles placement geometry.
