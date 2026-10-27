@@ -8,7 +8,7 @@ func verify(normal: SIMD3<Float>, camera: SIMD3<Float>) {
     let z = SIMD3(pose.columns.2.x, pose.columns.2.y, pose.columns.2.z)
     assert(near(simd_length(x), 1) && near(simd_length(y), 1) && near(simd_length(z), 1))
     assert(near(simd_dot(x, y), 0) && near(simd_dot(x, z), 0))
-    assert(near(simd_dot(x, camera), 0), "Wide edge must be perpendicular to viewer direction")
+    assert(near(x.x * camera.x + x.z * camera.z, 0), "Wide edge must be perpendicular to the plan-view viewer direction")
     assert(simd_dot(y, simd_normalize(normal)) > 0.999, "Must retain floor pitch")
     assert(near(simd_determinant(simd_float3x3(columns: (x,y,z))), 1))
 }

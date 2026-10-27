@@ -1,0 +1,79 @@
+{
+ "cases": [
+  {
+   "width": 3,
+   "count": 11,
+   "radiusM": 16.623041268071,
+   "verticalLimitM": 0.02,
+   "verticalAngleAllowanceDeg": 0.034467688224,
+   "horizontalRotationAllowanceDeg": 0.17233850349
+  },
+  {
+   "width": 3,
+   "count": 15,
+   "radiusM": 22.590385145012,
+   "verticalLimitM": 0.02,
+   "verticalAngleAllowanceDeg": 0.02536290533,
+   "horizontalRotationAllowanceDeg": 0.126814551501
+  },
+  {
+   "width": 0.2,
+   "count": 51,
+   "radiusM": 5.101793900188,
+   "verticalLimitM": 0.005,
+   "verticalAngleAllowanceDeg": 0.02807629101,
+   "horizontalRotationAllowanceDeg": 0.561528061867
+  },
+  {
+   "width": 0.2,
+   "count": 11,
+   "radiusM": 1.108287417595,
+   "verticalLimitM": 0.005,
+   "verticalAngleAllowanceDeg": 0.129243982091,
+   "horizontalRotationAllowanceDeg": 2.585098355936
+  },
+  {
+   "width": 3,
+   "count": 1,
+   "radiusM": 2.515054870177,
+   "verticalLimitM": 0.02,
+   "verticalAngleAllowanceDeg": 0.227811400593,
+   "horizontalRotationAllowanceDeg": 1.139075011168
+  },
+  {
+   "width": 3,
+   "count": 51,
+   "radiusM": 76.526632625511,
+   "verticalLimitM": 0.02,
+   "verticalAngleAllowanceDeg": 0.007487037857,
+   "horizontalRotationAllowanceDeg": 0.037435189924
+  }
+ ],
+ "displacement": [
+  {
+   "errorDeg": 0.05,
+   "radiusM": 20,
+   "displacementM": 0.017453291966
+  },
+  {
+   "errorDeg": 0.1,
+   "radiusM": 20,
+   "displacementM": 0.034906580609
+  },
+  {
+   "errorDeg": 0.25,
+   "radiusM": 20,
+   "displacementM": 0.087266393373
+  },
+  {
+   "errorDeg": 0.5,
+   "radiusM": 20,
+   "displacementM": 0.17453237139
+  },
+  {
+   "errorDeg": 1.0,
+   "radiusM": 20,
+   "displacementM": 0.349061419935
+  }
+ ]
+}

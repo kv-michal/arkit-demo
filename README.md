@@ -7,7 +7,7 @@ Native iPhone AR app built with SwiftUI, RealityKit, and ARKit. Open `FloorFrame
 ## Use
 
 1. Allow camera access and slowly scan a textured, well-lit floor.
-2. Aim the crosshair in the clear camera area above the controls at a floor or incline. The mint block follows that screen point: the middle of its camera-facing bottom edge stays on the aimed surface point, and its footprint extends away from you. Its long edge faces the camera.
+2. Choose a placement mode (see below), then aim the crosshair in the clear camera area above the controls at a floor or incline. The mint block follows that screen point: the middle of its camera-facing bottom edge stays on the aimed surface point, and its footprint extends away from you. Its long edge faces the camera.
 3. Choose **20 cm wide** (20 × 9 × 10 cm) or **3 m wide** (3 × 1.35 × 1.5 m).
 4. Set **Rectangles** (1–51, default 11). The row contains the main rectangle and alternates left/right: the default adds five on each side. Count and width can change after anchoring.
 5. **Occlusion** defaults off. Enable it on a LiDAR device to let real surfaces hide virtual rectangles; this keeps mesh reconstruction active even if the LiDAR mesh switch is off.
@@ -43,6 +43,25 @@ The Debug build was signed and installed on the connected iPhone 16 Pro. Geometr
 The Expo/Viro implementation is in [`floor-frame-viro/`](floor-frame-viro/README.md). It uses a separate bundle ID and can coexist with this app. Use Release configurations for both when comparing performance; see its README for stock-Viro API capabilities and renderer differences. The Viro app has no custom ARKit bridge or native module. Both apps now default to 11 rectangles (five on each side) and occlusion off, with matching count and occlusion controls.
 
 The transparent block has 12 opaque red bounding-box edges to make floor penetration easier to see. Edge thickness is 3 mm for the 20 cm version and 3 cm for the 3 m version; the bottom of the outline matches the bottom of the block.
+
+## Placement modes, calibration and hit markers (both apps)
+
+Both apps implement the code-level parts of [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) with the same modes, states, transforms, gates and diagnostic event names. The **mode picker** can change only before placement:
+
+| Mode | What happens |
+| --- | --- |
+| **Single hit** | Original flow: one surface hit, then **Anchor rectangle**. The row is stored relative to the anchor that was actually created, so the first render cannot jump. |
+| **Calibrate** | **Start calibration** creates the reference anchor and latches the origin and your facing direction. Sweep the target over the floor around and beside the row: a 5 × 5 grid of rays samples it 2.5 times per second. When the robust plane fit has enough spread-out evidence, **Anchor rectangle** commits the measured floor slope. **Cancel calibration** discards it. |
+| **Height exp.** | Calibrate, then an **unadopted experiment**: one rate-limited, gated vertical offset for the whole row, estimated from floor rays near you. Every other mode logs this estimate without applying it. |
+| **Survey** | Disabled until a validated survey manifest and printed board images are bundled (none ship). Surveyed floor-control points then define floor slope and origin height; the boards locate the survey frame. |
+
+Yaw now comes from the latched plan-view direction toward you; the floor normal supplies inclination. Phone pitch/roll never tilts the row. States: searching → calibrating → ready → locked, plus *tracking limited* and *lost* (the reference anchor was removed; tap Reposition).
+
+The status card shows the farthest rendered point and the proposed height-angle budget for the selected width/count, e.g. "Reach 16.5 m · height budget ±0.035°". This budget is a proposed target. Calibration quality is always labelled *precision unverified*: passing the research gates does not show absolute accuracy.
+
+**Purple spheres** mark where hit tests landed: the current aim hit (plus the two adjacent depth samples in Viro), up to 200 recent calibration samples, and the latest locked surface-probe cycle. They are display-only, 1.2 cm (20 cm blocks) or 3 cm (3 m blocks), and are cleared on reset/reposition.
+
+Shared fixtures in `Tests/fixtures/` (from `scripts/generate-fixtures.py`, an independent Python reference) feed both `scripts/test-fixtures.sh` (Swift) and `npm test` (TypeScript). They cover yaw/inclination, plane fit (pitched, compound, outliers, steps, source bias, collinear, stale epochs), budgets, height-correction gates and mode isolation, survey import, marker fusion, and actual-anchor transport.
 
 ## Native sinking diagnostics
 

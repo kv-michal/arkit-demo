@@ -7,18 +7,40 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		064ABB12B848C889ED32764D /* ImageReferenceAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B176EE09EC45CEB54BADB06 /* ImageReferenceAdapter.swift */; };
+		19A7D475CF004F7743D30E44 /* ReferenceFrameController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4980ED971CDC71C81158FA22 /* ReferenceFrameController.swift */; };
 		1FD8C5DD3E708F261BC8D0CA /* DiagnosticsPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCBCD09EAF80CB6C6BAFAB0A /* DiagnosticsPanel.swift */; };
+		252A692EA2AAF3C4FCA0F941 /* ReferenceFusion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1197F3E555959B5A08324639 /* ReferenceFusion.swift */; };
 		321E7ACB1008B0566ED2B7FA /* DiagnosticLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F305B60215D66FFF0B6BD8C1 /* DiagnosticLog.swift */; };
+		3B0F2D2E6710AC96B4555530 /* FloorCalibration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 305303A339A0381447EC3FAD /* FloorCalibration.swift */; };
 		3FC25BEE6E428D7CB6AFEC29 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5296DBAA0ED07E233D0CBEC6 /* Assets.xcassets */; };
 		4E0BF04F9615BC3C007EBE20 /* RectangleGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF978DE12A12ADEBB1B488C5 /* RectangleGeometry.swift */; };
 		5CBDCE01E5CD53D0FECF3A36 /* FloorFrameApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FF19D497E9498D888E0AE0 /* FloorFrameApp.swift */; };
+		65B7808161647D7DC386EAF6 /* PlacementModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D5848CE43B9E437E38ADD3 /* PlacementModel.swift */; };
+		65D16F65D1A66A71D7B8A061 /* SurveyManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8373869D509B7AAC830A9794 /* SurveyManifest.swift */; };
 		697556E499795EC613B40950 /* SurfacePose.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD34D88D9068ADECAAE14FF2 /* SurfacePose.swift */; };
+		7160A0824EFF30A79A4B432B /* CalibrationSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923C4255B982CD427BBBA399 /* CalibrationSampler.swift */; };
+		845A91E0C38CC4CA74BC1892 /* AccuracyBudget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC456A453613AE464EA25F1 /* AccuracyBudget.swift */; };
+		BB0668C5AE932496FE8FFFCD /* HitMarkers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51B46AE9C1292F881E3F1219 /* HitMarkers.swift */; };
+		E5DB817AAE699118B0C93C0B /* MatrixMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 005F5612A6B8FE080AF09920 /* MatrixMath.swift */; };
+		EAE37F77A7963FA06933A74F /* HeightCorrection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16183792FC2FB252B99F53E0 /* HeightCorrection.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		005F5612A6B8FE080AF09920 /* MatrixMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrixMath.swift; sourceTree = "<group>"; };
 		03FF19D497E9498D888E0AE0 /* FloorFrameApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloorFrameApp.swift; sourceTree = "<group>"; };
+		1197F3E555959B5A08324639 /* ReferenceFusion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferenceFusion.swift; sourceTree = "<group>"; };
+		16183792FC2FB252B99F53E0 /* HeightCorrection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeightCorrection.swift; sourceTree = "<group>"; };
+		2FC456A453613AE464EA25F1 /* AccuracyBudget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccuracyBudget.swift; sourceTree = "<group>"; };
+		305303A339A0381447EC3FAD /* FloorCalibration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloorCalibration.swift; sourceTree = "<group>"; };
+		4980ED971CDC71C81158FA22 /* ReferenceFrameController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferenceFrameController.swift; sourceTree = "<group>"; };
+		4B176EE09EC45CEB54BADB06 /* ImageReferenceAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageReferenceAdapter.swift; sourceTree = "<group>"; };
+		51B46AE9C1292F881E3F1219 /* HitMarkers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HitMarkers.swift; sourceTree = "<group>"; };
 		5296DBAA0ED07E233D0CBEC6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8373869D509B7AAC830A9794 /* SurveyManifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyManifest.swift; sourceTree = "<group>"; };
+		923C4255B982CD427BBBA399 /* CalibrationSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalibrationSampler.swift; sourceTree = "<group>"; };
 		AA521251D214D6C13C25C39A /* FloorFrame.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FloorFrame.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B0D5848CE43B9E437E38ADD3 /* PlacementModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacementModel.swift; sourceTree = "<group>"; };
 		BD34D88D9068ADECAAE14FF2 /* SurfacePose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurfacePose.swift; sourceTree = "<group>"; };
 		EF978DE12A12ADEBB1B488C5 /* RectangleGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RectangleGeometry.swift; sourceTree = "<group>"; };
 		F305B60215D66FFF0B6BD8C1 /* DiagnosticLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticLog.swift; sourceTree = "<group>"; };
@@ -45,12 +67,23 @@
 		65A90E1DEC22775467F32CD6 /* FloorFrame */ = {
 			isa = PBXGroup;
 			children = (
+				2FC456A453613AE464EA25F1 /* AccuracyBudget.swift */,
 				5296DBAA0ED07E233D0CBEC6 /* Assets.xcassets */,
+				923C4255B982CD427BBBA399 /* CalibrationSampler.swift */,
 				F305B60215D66FFF0B6BD8C1 /* DiagnosticLog.swift */,
 				FCBCD09EAF80CB6C6BAFAB0A /* DiagnosticsPanel.swift */,
+				305303A339A0381447EC3FAD /* FloorCalibration.swift */,
 				03FF19D497E9498D888E0AE0 /* FloorFrameApp.swift */,
+				16183792FC2FB252B99F53E0 /* HeightCorrection.swift */,
+				51B46AE9C1292F881E3F1219 /* HitMarkers.swift */,
+				4B176EE09EC45CEB54BADB06 /* ImageReferenceAdapter.swift */,
+				005F5612A6B8FE080AF09920 /* MatrixMath.swift */,
+				B0D5848CE43B9E437E38ADD3 /* PlacementModel.swift */,
 				EF978DE12A12ADEBB1B488C5 /* RectangleGeometry.swift */,
+				4980ED971CDC71C81158FA22 /* ReferenceFrameController.swift */,
+				1197F3E555959B5A08324639 /* ReferenceFusion.swift */,
 				BD34D88D9068ADECAAE14FF2 /* SurfacePose.swift */,
+				8373869D509B7AAC830A9794 /* SurveyManifest.swift */,
 			);
 			path = FloorFrame;
 			sourceTree = "<group>";
@@ -126,11 +159,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				845A91E0C38CC4CA74BC1892 /* AccuracyBudget.swift in Sources */,
+				7160A0824EFF30A79A4B432B /* CalibrationSampler.swift in Sources */,
 				321E7ACB1008B0566ED2B7FA /* DiagnosticLog.swift in Sources */,
 				1FD8C5DD3E708F261BC8D0CA /* DiagnosticsPanel.swift in Sources */,
+				3B0F2D2E6710AC96B4555530 /* FloorCalibration.swift in Sources */,
 				5CBDCE01E5CD53D0FECF3A36 /* FloorFrameApp.swift in Sources */,
+				EAE37F77A7963FA06933A74F /* HeightCorrection.swift in Sources */,
+				BB0668C5AE932496FE8FFFCD /* HitMarkers.swift in Sources */,
+				064ABB12B848C889ED32764D /* ImageReferenceAdapter.swift in Sources */,
+				E5DB817AAE699118B0C93C0B /* MatrixMath.swift in Sources */,
+				65B7808161647D7DC386EAF6 /* PlacementModel.swift in Sources */,
 				4E0BF04F9615BC3C007EBE20 /* RectangleGeometry.swift in Sources */,
+				19A7D475CF004F7743D30E44 /* ReferenceFrameController.swift in Sources */,
+				252A692EA2AAF3C4FCA0F941 /* ReferenceFusion.swift in Sources */,
 				697556E499795EC613B40950 /* SurfacePose.swift in Sources */,
+				65D16F65D1A66A71D7B8A061 /* SurveyManifest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

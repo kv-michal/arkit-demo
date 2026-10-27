@@ -29,7 +29,8 @@ for (const [i, { normal, camera }] of cases.entries())
     near(dot(z, z), 1);
     near(dot(x, y), 0);
     near(dot(x, z), 0);
-    near(dot(x, camera), 0);
+    // Plan-view yaw: x's horizontal projection is perpendicular to the viewer's.
+    near(x[0] * camera[0] + x[2] * camera[2], 0);
     near(dot(cross(x, y), z), 1);
     near(dot(y, normal) / Math.hypot(...normal), 1);
     const [rx, ry, rz] = pose.rotation.map((v) => (v * Math.PI) / 180);

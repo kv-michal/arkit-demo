@@ -2,7 +2,7 @@
 
 Updated: **2026-10-27**. Based on the implementation described in [PROJECT_STATE.md](PROJECT_STATE.md), inspected at **8f450ba**; image-tracking configuration audit extended 2026-10-27.
 
-**Status: design for future implementation.** This document does not mean these improvements exist or have met their accuracy targets. Current behavior remains in PROJECT_STATE.md. Numerical tuning values below are starting proposals, not measured sensor capabilities.
+**Status:** the code-level parts (sections 1–8: yaw composition, calibration state machine and floor estimator, actual-anchor transport, budgets, gated height experiment, survey/fusion/reference controller and image adapters, shared fixtures) were implemented in both apps on 2026-10-27; see [PROJECT_STATE.md section 6a](PROJECT_STATE.md#6a-plan-implementation-2026-10-27). That does not mean these improvements have met their accuracy targets: none of the physical gates or the metrology work in sections 9–10 has been done. Current behavior remains in PROJECT_STATE.md. Numerical tuning values below are starting proposals, not measured sensor capabilities.
 
 ## 1. Requirements and proposed acceptance targets
 

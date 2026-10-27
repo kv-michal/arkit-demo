@@ -1,0 +1,486 @@
+{
+ "base": [
+  0.866025403784,
+  0.0,
+  -0.5,
+  0.0,
+  0.017449748351,
+  0.999390827019,
+  0.030223850724,
+  0.0,
+  0.49969541351,
+  -0.034899496703,
+  0.865497844508,
+  0.0,
+  1.0,
+  0.2,
+  -2.0,
+  1
+ ],
+ "gravityUp": [
+  0.0,
+  1.0,
+  0.0
+ ],
+ "residualForPointAbove": {
+  "point": [
+   1.0,
+   0.23,
+   -2.0
+  ],
+  "expectedM": 0.03
+ },
+ "steps": [
+  {
+   "time": 1.0,
+   "observations": [
+    {
+     "point": [
+      -0.881959431622,
+      0.240469849011,
+      -1.259649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 1,
+     "normal": [
+      0.017449748351,
+      0.999390827019,
+      0.030223850724
+     ]
+    },
+    {
+     "point": [
+      0.850091375947,
+      0.240469849011,
+      -2.259649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 1,
+     "normal": [
+      0.017449748351,
+      0.999390827019,
+      0.030223850724
+     ]
+    },
+    {
+     "point": [
+      2.582142183516,
+      0.240469849011,
+      -3.259649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 1,
+     "normal": [
+      0.017449748351,
+      0.999390827019,
+      0.030223850724
+     ]
+    },
+    {
+     "point": [
+      0.850091375947,
+      0.240469849011,
+      -2.259649353352
+     ],
+     "source": "FeaturePoint",
+     "targetMissM": 0.05,
+     "cycle": 1
+    },
+    {
+     "point": [
+      1.716116779732,
+      0.240469849011,
+      -2.759649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.9,
+     "cycle": 1
+    },
+    {
+     "point": [
+      1.716116779732,
+      0.240469849011,
+      -2.759649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 1,
+     "normal": [
+      0,
+      0,
+      1
+     ]
+    }
+   ],
+   "apply": true,
+   "expectedResidualCount": 3,
+   "expectedRejected": 3,
+   "expectedProposedM": null,
+   "expectedAppliedM": 0.0
+  },
+  {
+   "time": 2.0,
+   "observations": [
+    {
+     "point": [
+      -0.881959431622,
+      0.240469849011,
+      -1.259649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 2,
+     "normal": [
+      0.017449748351,
+      0.999390827019,
+      0.030223850724
+     ]
+    },
+    {
+     "point": [
+      0.850091375947,
+      0.240469849011,
+      -2.259649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 2,
+     "normal": [
+      0.017449748351,
+      0.999390827019,
+      0.030223850724
+     ]
+    },
+    {
+     "point": [
+      2.582142183516,
+      0.240469849011,
+      -3.259649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 2,
+     "normal": [
+      0.017449748351,
+      0.999390827019,
+      0.030223850724
+     ]
+    },
+    {
+     "point": [
+      0.850091375947,
+      0.240469849011,
+      -2.259649353352
+     ],
+     "source": "FeaturePoint",
+     "targetMissM": 0.05,
+     "cycle": 2
+    },
+    {
+     "point": [
+      1.716116779732,
+      0.240469849011,
+      -2.759649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.9,
+     "cycle": 2
+    },
+    {
+     "point": [
+      1.716116779732,
+      0.240469849011,
+      -2.759649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 2,
+     "normal": [
+      0,
+      0,
+      1
+     ]
+    }
+   ],
+   "apply": true,
+   "expectedResidualCount": 3,
+   "expectedRejected": 3,
+   "expectedProposedM": 0.03,
+   "expectedAppliedM": 0.02
+  },
+  {
+   "time": 3.0,
+   "observations": [
+    {
+     "point": [
+      -0.881959431622,
+      0.240469849011,
+      -1.259649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 3,
+     "normal": [
+      0.017449748351,
+      0.999390827019,
+      0.030223850724
+     ]
+    },
+    {
+     "point": [
+      0.850091375947,
+      0.240469849011,
+      -2.259649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 3,
+     "normal": [
+      0.017449748351,
+      0.999390827019,
+      0.030223850724
+     ]
+    },
+    {
+     "point": [
+      2.582142183516,
+      0.240469849011,
+      -3.259649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 3,
+     "normal": [
+      0.017449748351,
+      0.999390827019,
+      0.030223850724
+     ]
+    },
+    {
+     "point": [
+      0.850091375947,
+      0.240469849011,
+      -2.259649353352
+     ],
+     "source": "FeaturePoint",
+     "targetMissM": 0.05,
+     "cycle": 3
+    },
+    {
+     "point": [
+      1.716116779732,
+      0.240469849011,
+      -2.759649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.9,
+     "cycle": 3
+    },
+    {
+     "point": [
+      1.716116779732,
+      0.240469849011,
+      -2.759649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 3,
+     "normal": [
+      0,
+      0,
+      1
+     ]
+    }
+   ],
+   "apply": true,
+   "expectedResidualCount": 3,
+   "expectedRejected": 3,
+   "expectedProposedM": 0.03,
+   "expectedAppliedM": 0.03
+  },
+  {
+   "time": 4.0,
+   "observations": [
+    {
+     "point": [
+      -0.881959431622,
+      0.240469849011,
+      -1.259649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 4,
+     "normal": [
+      0.017449748351,
+      0.999390827019,
+      0.030223850724
+     ]
+    },
+    {
+     "point": [
+      0.850091375947,
+      0.240469849011,
+      -2.259649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 4,
+     "normal": [
+      0.017449748351,
+      0.999390827019,
+      0.030223850724
+     ]
+    },
+    {
+     "point": [
+      2.582142183516,
+      0.240469849011,
+      -3.259649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 4,
+     "normal": [
+      0.017449748351,
+      0.999390827019,
+      0.030223850724
+     ]
+    },
+    {
+     "point": [
+      0.850091375947,
+      0.240469849011,
+      -2.259649353352
+     ],
+     "source": "FeaturePoint",
+     "targetMissM": 0.05,
+     "cycle": 4
+    },
+    {
+     "point": [
+      1.716116779732,
+      0.240469849011,
+      -2.759649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.9,
+     "cycle": 4
+    },
+    {
+     "point": [
+      1.716116779732,
+      0.240469849011,
+      -2.759649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 4,
+     "normal": [
+      0,
+      0,
+      1
+     ]
+    }
+   ],
+   "apply": true,
+   "expectedResidualCount": 3,
+   "expectedRejected": 3,
+   "expectedProposedM": 0.03,
+   "expectedAppliedM": 0.03
+  },
+  {
+   "time": 5.0,
+   "observations": [
+    {
+     "point": [
+      -0.881959431622,
+      0.240469849011,
+      -1.259649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 5,
+     "normal": [
+      0.017449748351,
+      0.999390827019,
+      0.030223850724
+     ]
+    },
+    {
+     "point": [
+      0.850091375947,
+      0.240469849011,
+      -2.259649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 5,
+     "normal": [
+      0.017449748351,
+      0.999390827019,
+      0.030223850724
+     ]
+    },
+    {
+     "point": [
+      2.582142183516,
+      0.240469849011,
+      -3.259649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 5,
+     "normal": [
+      0.017449748351,
+      0.999390827019,
+      0.030223850724
+     ]
+    },
+    {
+     "point": [
+      0.850091375947,
+      0.240469849011,
+      -2.259649353352
+     ],
+     "source": "FeaturePoint",
+     "targetMissM": 0.05,
+     "cycle": 5
+    },
+    {
+     "point": [
+      1.716116779732,
+      0.240469849011,
+      -2.759649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.9,
+     "cycle": 5
+    },
+    {
+     "point": [
+      1.716116779732,
+      0.240469849011,
+      -2.759649353352
+     ],
+     "source": "estimatedPlane",
+     "targetMissM": 0.05,
+     "cycle": 5,
+     "normal": [
+      0,
+      0,
+      1
+     ]
+    }
+   ],
+   "apply": true,
+   "expectedResidualCount": 3,
+   "expectedRejected": 3,
+   "expectedProposedM": 0.03,
+   "expectedAppliedM": 0.03
+  }
+ ],
+ "note": "A pure +Y offset h of a floor point gives gravity residual h on any pitched plane."
+}

@@ -7,8 +7,11 @@ import {
   Viro3DObject,
   ViroBox,
   ViroMaterials,
+  ViroSphere,
 } from "@reactvision/react-viro";
-import { modelStore, placement } from "./placement";
+import { hitStore, modelStore, placement } from "./placement";
+import { HIT_MARKERS, hitMarkerRadius } from "./hitMarkers";
+import { ImageReferences } from "./ImageReferences";
 import { rectangleCenterZ, rectangleOffset } from "./rectangleGeometry";
 import { diagnostics } from "./diagnostics";
 
@@ -28,6 +31,12 @@ ViroMaterials.createMaterials({
     blendMode: "None",
     writesToDepthBuffer: true,
     readsFromDepthBuffer: true,
+  },
+  hit: {
+    lightingModel: "Constant",
+    diffuseColor: HIT_MARKERS.color,
+    alpha: 1,
+    blendMode: "None",
   },
 });
 // eslint-disable-next-line @typescript-eslint/no-require-imports -- Metro resolves this static native OBJ asset.
@@ -66,6 +75,8 @@ export function FloorScene() {
         direction={DIRECTION}
         castsShadow={false}
       />
+      <ImageReferences />
+      <HitMarkers />
       {pose ? (
         <ViroNode position={pose.position} rotation={pose.rotation}>
           <RectangleRow width={width} count={rectangleCount} />
@@ -159,3 +170,25 @@ const BoundingBox = memo(function BoundingBox({ width }: { width: number }) {
     </ViroNode>
   );
 });
+
+// Purple spheres at recent hit-test results; display only.
+function HitMarkers() {
+  const points = hitStore.useValue();
+  const { width } = modelStore.useValue();
+  const radius = hitMarkerRadius(width);
+  return (
+    <>
+      {points.map((point, index) => (
+        <ViroSphere
+          // Positions change in place; index keys keep the node count stable.
+          key={index}
+          position={point}
+          radius={radius}
+          widthSegmentCount={8}
+          heightSegmentCount={6}
+          materials="hit"
+        />
+      ))}
+    </>
+  );
+}

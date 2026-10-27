@@ -1,6 +1,6 @@
 # Floor Frame: project state and intended behavior
 
-Updated: **2026-10-27**. Implementation inspected at commit **8f450ba**; installed Viro 3.0.3 anchor-creation source inspected 2026-10-26 and image-tracking configuration inspected 2026-10-27.
+Updated: **2026-10-27**. Implementation inspected at commit **8f450ba**, plus the 2026-10-27 plan implementation summarized in [section 6a](#6a-plan-implementation-2026-10-27); installed Viro 3.0.3 anchor-creation source inspected 2026-10-26 and image-tracking configuration inspected 2026-10-27.
 
 This is the core reference for the project's goal, current implementation, reasons for the implementation, verification limits, and unresolved problems. The root README and Viro README provide build/use instructions and historical results. Read this document before changing placement, orientation, anchoring, occlusion, diagnostics, or comparing the two apps.
 
@@ -42,10 +42,10 @@ There are two separate apps intended for comparison:
 | Stack | SwiftUI, RealityKit, ARKit | Expo 57, React Native 0.86, stock `@reactvision/react-viro` 3.0.3 |
 | Platforms | iOS | iOS and Android enabled in Expo config; native Android operation remains unverified in this work |
 | Placement | ARKit surface raycast | Viro plane/depth hit tests |
-| Attachment | RealityKit entity attached directly to an ARAnchor | World-space ViroNode follows anchor callbacks through JavaScript |
-| Floor orientation | Surface normal from ARKit hit | Plane-hit rotation, or normal estimated from three adjacent depth hits |
+| Attachment | World-space RealityKit entity set to `ARAnchor transform * referenceFromRow` on each anchor callback | World-space ViroNode set to `anchor * referenceFromRow` through JavaScript callbacks |
+| Floor orientation | Single hit normal, or a robust multi-sample floor fit (Calibrate modes) | Single hit/depth-patch normal, or the same robust floor fit |
 | Anchor count for row | One | One |
-| Shareable AR diagnostics | Not implemented | Implemented, including collection after anchoring |
+| Shareable AR diagnostics | Implemented (same JSONL envelope and event names) | Implemented, including collection after anchoring |
 | Proven stability over a 20 m walk | Not established | Not established |
 
 The reported problem is that placement looks correct near the start, but the row appears to sink into the floor as the user approaches farther rectangles. A supplied recording shows floor intersections/disappearing lower edges with **occlusion enabled**. No captured diagnostic log has yet established the cause or isolated an app-specific failure mechanism. The diagnostics commit adds observation, not a sinking fix.
@@ -62,20 +62,17 @@ Both implementations build one rigid row in a single local coordinate frame:
 
 At 3 m width, the default 11 rectangles occupy 33 m total, but their centers only reach **15 m to either side** of the main rectangle, with outer edges at 16.5 m. Fifteen rectangles place centers as far as 21 m on each side. At 0.2 m width, even the current maximum 51 rectangles span only 10.2 m total; that mode cannot cover a 20 m walk from the main rectangle with the current count limit.
 
-Both pose helpers currently construct a surface-aligned basis from a hit position `p`, floor normal `n`, and camera position `c`:
+Since 2026-10-27 both pose helpers (`SurfacePose.swift`, `surfacePose.ts`, yaw convention version 2) implement IMPLEMENTATION_PLAN section 3. Inputs are origin `p`, camera position `c`, gravity-up `g` and measured floor normal `n`:
 
 ```text
-n = normalized floor normal, flipped upward
-towardUser = c - p
-z = normalize(towardUser - dot(towardUser, n) * n)
-x = normalize(cross(n, z))
+zHorizontal = normalize((c - p) - dot(c - p, g) * g)   # latched plan-view heading
+xHorizontal = normalize(cross(g, zHorizontal))
+x = normalize(xHorizontal - g * dot(n, xHorizontal) / dot(n, g))
 y = n
-pose = basis(x, y, z) plus translation p
+z = normalize(cross(x, y))
 ```
 
-This makes the long X edge perpendicular to the projected direction toward the camera and places the base parallel to the estimated floor. It is the current mechanism for viewer-facing placement and slope support. It uses camera **position**, not a copy of the camera's Euler pitch/roll. Phone aiming still affects which floor point is selected, and Viro uses camera-forward/up vectors to take nearby depth samples.
-
-This construction is a full 3D surface basis. It does not explicitly extract horizontal user yaw and then independently apply a stored floor-pitch angle. On sloped ground, projection onto the floor is not automatically equivalent to every possible yaw-then-pitch convention. Exact composition must be checked against the user requirement when orientation changes are implemented.
+The long edge's horizontal projection stays perpendicular to the initial user direction on any compound slope; the floor normal supplies inclination. Moving the camera up or down at the same plan position does not change the pose (fixture-tested). The previous construction projected the camera direction onto the floor plane, which could alter yaw on compound slopes. Each fit and commit logs along-row inclination `atan2(dot(x, g), |x - dot(x, g) g|)` and cross-slope.
 
 Both pose helpers reject near-zero normals, normals with upward component `<= 0.5` (roughly slopes of 60 degrees or more), hits less than 5 cm below the camera, hits 8 m or farther away, and an undefined facing direction when the camera is almost directly above the hit. Viro additionally checks finite input values.
 
@@ -87,7 +84,7 @@ Source: [FloorFrameApp.swift](FloorFrame/FloorFrameApp.swift), [SurfacePose.swif
 
 1. **Session:** the app owns an ARSession through ARView. It enables horizontal plane detection and automatic environment texturing. On mesh-capable devices, mesh reconstruction runs when either LiDAR mesh or occlusion is enabled. Frame semantics are empty in the explicit configuration.
 2. **Preview:** while active and unlocked, at most 20 times per second, the app requires normal tracking and raycasts through the screen center with `.estimatedPlane` and `.any` alignment. The first result supplies position and normal. `SurfacePose.make` computes the basis above. There is no app-level temporal averaging or broad-area floor-plane fit.
-3. **Commit:** tapping Anchor rectangle creates one plain `ARAnchor` at the candidate transform. A RealityKit `AnchorEntity(anchor:)` receives the whole row as its child. This directly associates rendering with the ARKit anchor rather than manually copying transforms through another UI/runtime layer.
+3. **Commit:** creates one plain `ARAnchor` (at the candidate pose, or at calibration start). A world-space RealityKit `AnchorEntity` holds the whole row and is set to `anchor transform * referenceFromRow` on each anchor callback (frozen when Follow anchor updates is off). Calibrated modes commit the fitted pose instead (section 6a).
 4. **After commit:** the preview guard stops all app-level placement raycasts and recomputation of viewer-facing orientation. The row's local transform stays attached to that anchor. ARKit/RealityKit continue tracking the camera and anchor; `locked` is not a guarantee of immutable world-transform numbers or zero physical drift. There is no explicit app-level pitch-only lock, correction filter, or 20 m stability solver.
 5. **Occlusion:** the toggle sets RealityKit scene-understanding `.occlusion`. It is available only on mesh-capable devices. Changing it reapplies the session configuration without explicitly resetting tracking. Occlusion may keep reconstruction active even when the separate LiDAR mesh switch is off.
 6. **Reposition/reset:** Reposition removes the individual anchor and returns to preview. LiDAR mode changes unanchor and reset tracking/anchors. Reset scan also clears placement and rebuilds tracking. An ended AR session interruption triggers reset; session errors disable the rendered block. Backgrounding pauses the session and returning resumes it through `start()`.
@@ -128,7 +125,22 @@ Use **Mark sinking now**, then **Debug logs → Copy log** or **Share full log**
 
 Up to four extra diagnostic rays per second inspect the chain center, both ends and nearest rectangle while tracking is normal. Targets outside 0.1–8 m or the forward cone are skipped. The diagnostic rays do not update placement. A negative normal-clearance value means an estimated surface lies above the model's bottom plane.
 
-These measurements are Viro's estimates, not independent physical ground truth or a readback of occlusion depth-buffer pixels. Callback timing is not renderer FPS. The native Swift app has no equivalent shareable recorder yet. Detailed capture limits are in the [Viro README](floor-frame-viro/README.md#sinking-diagnostics-ios-and-android).
+These measurements are Viro's estimates, not independent physical ground truth or a readback of occlusion depth-buffer pixels. Callback timing is not renderer FPS. The native app has an equivalent recorder (same envelope and event names, native frame timestamps). Detailed capture limits are in the [Viro README](floor-frame-viro/README.md#sinking-diagnostics-ios-and-android).
+
+## 6a. Plan implementation (2026-10-27)
+
+Implemented identically in both apps (Swift and TypeScript ports checked against the same fixtures in `Tests/fixtures`, generated by an independent Python reference in `scripts/generate-fixtures.py`):
+
+- **Modes** (changeable only before placement; a change clears experimental offsets and requires a new commit): *Single hit* (baseline comparison), *Calibrate*, *Height exp.*, *Survey*.
+- **State machine** (plan section 4): searching → calibrating → readyToCommit → locked; locked ↔ trackingLimited; lost when the reference anchor is removed (row stays visible, Reposition required). Calibration pauses during limited tracking; losing the reference anchor while calibrating restarts.
+- **Reference transport** (plan sections 2 and 6): one reference anchor per placement; the whole row renders as `worldFromReference(t) * referenceFromRow`. **Viro now uses the created anchor's own transform** (iOS quaternion converted) as baseline instead of the hit transform; native anchors are created at the candidate pose. `anchor_baseline` and `anchor_baseline_callback` log hit, returned anchor and first callback transforms with differences. Follow anchor updates still freezes transport.
+- **Floor calibration** (plan section 5): latches origin/heading, then samples a 5 × 5 (adaptive 3 × 3) grid at 2.5 batches/s into the reference-anchor frame with batch and coordinate-epoch tags. Fit: source-specific groups, 0.2 m spatial cells with capped weights, deterministic RANSAC, weighted PCA refinement, residual/coverage/eigenvalue metrics, batch bootstrap uncertainty, checkerboard held-out comparison and 1 s stability. Commit gate (*measured*): ≥12 cells, ≥3 batches, ≥0.8 × 0.4 m, ≥60% inliers, non-collinear. Research gates (*research_consistent*) follow plan section 5 item 7. **Both always report "precision unverified".** No mesh-vertex sampling.
+- **Accuracy budget** (plan section 1): farthest rendered vertex radius and proposed height/horizontal angle allowances, recomputed on width/count changes and shown on the status card.
+- **Gated height correction** (plan section 7): one gravity-axis offset per row from locked surface probes, with denominator, source, normal-agreement, target-miss and magnitude gates, 3 s median window, 5 mm deadband, 2 cm/s rate limit and 25 cm cap. It is applied **only** in *Height exp.*; every other mode logs a shadow estimate with zero applied offset. Tracking loss marks it stale and clears its window.
+- **Survey reference mode** (plan section 8): manifest validation, one-root quaternion fusion with outlier/stale/epoch/held-out handling, a reference controller (surveyed floor authority, out-of-extent rejection, anchor transport while boards are out of view), and image adapters (ARKit detection images with `maximumNumberOfTrackedImages = 2`; Viro image markers with `numberOfTrackedImages = 2`). **No survey manifest or board images ship**, so the mode is disabled on both devices. Marker axes, timing and accuracy are untested.
+- **Hit markers:** purple spheres at preview hits, calibration samples and locked probe hits (display only).
+
+Not done: any physical gate in plan section 9, the out-and-back experiment, the rendered-height metrology blocker, Android testing, and device validation of calibration quality, anchor baselines or marker tracking. The height-correction and survey modes remain product decisions/experiments, not adopted fixes.
 
 ## 7. Unresolved sinking problem and gaps against the goal
 
@@ -146,7 +158,7 @@ The following mechanisms remain distinguishable possibilities, not confirmed cau
 
 For scale, a 0.1 degree angular error produces about 3.5 cm of height difference over 20 m; 0.5 degrees produces about 17.5 cm; 1 degree produces about 35 cm. These are geometric examples, not measurements from the recording.
 
-Neither app currently implements a broad-area robust floor fit, separately stored yaw/floor-pitch calibration, explicit rejection of later floor-orientation changes, a constrained multi-reference solution, surveyed reference markers, terrain following, or a demonstrated drift bound over 20 m. Both currently rely on one placement anchor for the entire row. Using more anchors independently would also need a solution for preserving row rigidity; it is not an adopted fix.
+Both apps now implement a broad-area robust floor fit and separately latched yaw (section 6a); neither has demonstrated its physical accuracy, a working surveyed-marker setup, terrain following, or a drift bound over 20 m. Both currently rely on one placement anchor for the entire row. Using more anchors independently would also need a solution for preserving row rigidity; it is not an adopted fix.
 
 Freezing all numeric transforms or discarding every anchor update has not been accepted as a fix: tracking-coordinate corrections may be necessary for apparent physical stability. Likewise, fitting each rectangle to newly observed terrain would change the stated rigid-placement behavior. Proposed changes must identify which error they address and preserve the required yaw, floor inclination, rigidity and walking direction.
 
@@ -159,7 +171,7 @@ At the inspected diagnostics commit:
 - Those checks do not establish native compilation, device clipboard/share behavior, tracking accuracy, occlusion accuracy or 20 m stability for the diagnostics build.
 - Earlier README build/install reports are historical. Native Swift compilation/tests were not rerun in this Windows diagnostics work; iOS builds require the Apple toolchain. No comparative performance winner has been measured.
 
-The stability goal is complete only after testing each rebuilt app on a physical device: place once with the main long edge perpendicular to the user's initial viewing direction, use the measured floor inclination, keep the row rigid, walk along its X direction for at least 20 m, inspect intermediate/far rectangles with occlusion enabled, and return toward the start. Capture matching video and that app's diagnostic log, including a sinking marker if it occurs. Viro already has a recorder; native Swift recording/export is planned in the first milestone and remains unimplemented. Use known nonzero/compound inclines as primary acceptance routes, measured zero pitch as an additional estimator edge case, and changing/uneven terrain as a separate condition. A full precision claim must meet the separately selected horizontal and height criteria with independent measurement uncertainty; a video/log alone is not sufficient.
+The stability goal is complete only after testing each rebuilt app on a physical device: place once with the main long edge perpendicular to the user's initial viewing direction, use the measured floor inclination, keep the row rigid, walk along its X direction for at least 20 m, inspect intermediate/far rectangles with occlusion enabled, and return toward the start. Capture matching video and that app's diagnostic log, including a sinking marker if it occurs. Both apps have recorders with copy/share export. Use known nonzero/compound inclines as primary acceptance routes, measured zero pitch as an additional estimator edge case, and changing/uneven terrain as a separate condition. A full precision claim must meet the separately selected horizontal and height criteria with independent measurement uncertainty; a video/log alone is not sufficient.
 
 The user has specified approximately **20 cm positional accuracy**, with floor pitch **as precise as possible** because its error grows over 20 m. Numeric angular and separate vertical tolerances have not been specified by the user. The [implementation plan](IMPLEMENTATION_PLAN.md) now treats 20 cm as a proposed horizontal criterion and proposes stricter height-evaluation targets (2 cm for large blocks, 5 mm for small blocks), subject to user agreement and physical feasibility. Its 0.10/0.05 degree angular research targets do not by themselves meet those height limits at 20 m. Comparable native/Viro logging and a measured out-and-back walk on a known pitched route precede full calibration work. A shared gravity-axis height correction is documented as a separate, unadopted experiment: it keeps the row rigid but can confuse tracking error with a parallel ground-height change. None of these planned improvements is implemented or demonstrated. Phone movement must not trigger intentional re-facing/replacement; numerical tracking corrections must be assessed by their physical result.
 
@@ -174,6 +186,12 @@ In the planned reference workflow, validated **surveyed floor-control points def
 The proposed phone-floor height-correction experiment is **disabled in surveyed reference mode**. A shadow estimate is logging-only and cannot change rendering, survey geometry or fusion weights, including during loss/recovery. Reference-based coordinate corrections remain a separate valid tracking path. Visible phone-driven height correction is eligible only in the explicitly selected experimental phone-only mode; switching placement modes requires a new commit and clears its offsets. This mode isolation is planned and has not yet been implemented or device-tested.
 
 **Open validation blocker:** no accepted independent method currently measures the rendered model's physical height to approximately 1 mm uncertainty. A surveyed floor plus the app's own pose estimates cannot validate that independently. The proposed 5 mm pass remains blocked; the 2 cm pass also needs an independently demonstrated measurement chain suitable for its limit. The plan records this as a metrology feasibility question, not as solved by reference markers or a screenshot overlay.
+
+### 2026-10-27 plan implementation checks
+
+- Viro: TypeScript, lint and **32 tests** pass, including fixture parity tests.
+- Swift: `scripts/test-fixtures.sh`, `scripts/test-geometry.sh` and `scripts/test-diagnostics.sh` pass.
+- Both Release builds compiled and were installed on PotatoPhone (iPhone 16 Pro). Each launched and stayed running. Placement, calibration, hit markers and diagnostics were **not** exercised on the device by these checks; AR behaviour, calibration quality and 20 m stability remain unverified.
 
 ## 9. Maintaining this reference
 

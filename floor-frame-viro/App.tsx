@@ -20,7 +20,7 @@ import { useCameraPermissions } from "expo-camera";
 import { StatusBar } from "expo-status-bar";
 import { ViroARSceneNavigator } from "@reactvision/react-viro";
 import { FloorScene } from "./src/ARScene";
-import { settingsStore, placement, uiStore } from "./src/placement";
+import { settingsStore, placement, uiStore, PLACEMENT_MODES, type PlacementMode } from "./src/placement";
 import { DiagnosticsPanel } from "./src/DiagnosticsPanel";
 import { diagnostics } from "./src/diagnostics";
 
@@ -37,6 +37,7 @@ const GRADIENT = [
 function FloorFrame() {
   const insets = useSafeAreaInsets();
   const settings = settingsStore.useValue();
+  const { surveyAvailable } = uiStore.useValue();
   const [permission, requestPermission] = useCameraPermissions();
   const [active, setActive] = useState(AppState.currentState === "active");
   const granted = permission?.granted === true;
@@ -103,6 +104,7 @@ function FloorFrame() {
             depthEnabled={settings.depth}
             worldMeshEnabled={settings.depth}
             occlusionMode={settings.occlusion ? "depthBased" : "disabled"}
+            numberOfTrackedImages={surveyAvailable ? 2 : 0}
             hdrEnabled
             pbrEnabled
             bloomEnabled={false}
@@ -182,7 +184,10 @@ function PlacementControls({
         <Text style={s.detail}>
           {denied ? "Allow camera access in Settings to use AR" : ui.detail}
         </Text>
+        {ui.quality ? <Text style={s.quality}>{ui.quality}</Text> : null}
+        <Text style={s.budget} testID="accuracyBudget">{ui.budget}</Text>
       </View>
+      <ModePicker />
       <View
         style={s.picker}
         accessibilityRole="radiogroup"
@@ -211,6 +216,30 @@ function PlacementControls({
       <AnchorButton granted={granted} denied={denied} />
       <DiagnosticsPanel />
     </BlurView>
+  );
+}
+function ModePicker() {
+  const ui = uiStore.useValue();
+  const editable = ui.phase === "searching" && !ui.busy;
+  return (
+    <View style={s.picker} accessibilityRole="radiogroup" accessibilityLabel="Placement mode" testID="modePicker">
+      {PLACEMENT_MODES.map(({ mode, label }) => {
+        const disabled = !editable || (mode === "surveyed" && !ui.surveyAvailable);
+        return (
+          <Pressable
+            key={mode}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: ui.mode === mode, disabled }}
+            accessibilityLabel={label}
+            disabled={disabled}
+            onPress={() => placement.setMode(mode as PlacementMode)}
+            style={[s.segment, ui.mode === mode && s.selected, disabled && ui.mode !== mode && s.disabled]}
+          >
+            <Text style={s.modeSegmentText}>{label}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
   );
 }
 function RectangleCountControl() {
@@ -281,6 +310,13 @@ function ModeControl({ granted }: { granted: boolean }) {
     </View>
   );
 }
+function primaryTitle(ui: ReturnType<typeof uiStore.get>) {
+  if (ui.locked) return "Reposition";
+  if (ui.phase === "calibrating" || ui.phase === "readyToCommit") return "Anchor rectangle";
+  if (ui.mode === "baseline") return "Anchor rectangle";
+  if (ui.mode === "surveyed") return "Anchor to survey";
+  return "Start calibration";
+}
 function AnchorButton({
   granted,
   denied,
@@ -289,32 +325,43 @@ function AnchorButton({
   denied: boolean;
 }) {
   const ui = uiStore.useValue();
-  const title = denied
-    ? "Open Camera Settings"
-    : ui.locked
-      ? "Reposition"
-      : "Anchor rectangle";
-  const disabled =
-    !denied && (!granted || ui.busy || (!ui.locked && !ui.ready));
+  const title = denied ? "Open Camera Settings" : primaryTitle(ui);
+  const calibrating = ui.phase === "calibrating" || ui.phase === "readyToCommit";
+  const enabled = ui.locked || ui.phase === "readyToCommit" || (ui.phase === "searching" && ui.ready);
+  const disabled = !denied && (!granted || ui.busy || !enabled);
   function onPress() {
     if (denied) void Linking.openSettings();
-    else void placement.anchorOrReposition();
+    else void placement.primaryAction();
   }
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={title}
-      testID="anchorButton"
-      disabled={disabled}
-      onPress={onPress}
-      style={({ pressed }) => [
-        s.anchor,
-        disabled && s.disabled,
-        pressed && s.pressed,
-      ]}
-    >
-      <Text style={s.anchorText}>{title}</Text>
-    </Pressable>
+    <View style={s.actions}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={title}
+        testID="anchorButton"
+        disabled={disabled}
+        onPress={onPress}
+        style={({ pressed }) => [
+          s.anchor,
+          disabled && s.disabled,
+          pressed && s.pressed,
+        ]}
+      >
+        <Text style={s.anchorText}>{title}</Text>
+      </Pressable>
+      {calibrating ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Cancel calibration"
+          testID="cancelCalibration"
+          disabled={ui.busy}
+          onPress={() => placement.reposition("Calibration cancelled")}
+          style={s.cancel}
+        >
+          <Text style={s.cancelText}>Cancel calibration</Text>
+        </Pressable>
+      ) : null}
+    </View>
   );
 }
 function WidthButton({
@@ -386,7 +433,7 @@ const s = StyleSheet.create({
     gap: 14,
     backgroundColor: "#20232955",
   },
-  status: { alignItems: "center", gap: 5 },
+  status: { alignItems: "center", gap: 4 },
   message: {
     fontSize: 15,
     fontWeight: "600",
@@ -394,6 +441,12 @@ const s = StyleSheet.create({
     textAlign: "center",
   },
   detail: { fontSize: 12, color: "#b8b8bf", textAlign: "center" },
+  budget: { fontSize: 11, color: "#b8b8bf", textAlign: "center" },
+  quality: { fontSize: 12, color: "#63e6c4", textAlign: "center" },
+  modeSegmentText: { color: "white", fontSize: 12, fontWeight: "500" },
+  actions: { gap: 8 },
+  cancel: { alignItems: "center", paddingVertical: 6 },
+  cancelText: { color: "#ff9f9f", fontSize: 14, fontWeight: "500" },
   picker: {
     height: 32,
     backgroundColor: "#10101488",

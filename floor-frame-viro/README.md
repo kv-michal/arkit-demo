@@ -8,6 +8,7 @@ Expo 57 / React Native 0.86 / **@reactvision/react-viro 3.0.3**, installed as **
 
 ## Kept behavior
 
+- Placement modes, calibration flow and purple hit-result spheres shared with native (see the end of this file).
 - Portrait camera, visible aiming target above the controls, status, reset, anchor/reposition, width selector.
 - 20 × 9 × 10 cm or 3 × 1.35 × 1.5 m transparent mint blocks, rounded corners and opaque red bounding edges.
 - 1–51 rectangles, default **11**: center plus five on each side. Count and width can change after anchoring.
@@ -82,3 +83,11 @@ The middle of the camera-facing bottom edge stays at the aimed surface point in 
 ## Follow anchor updates
 
 **Follow anchor updates** defaults on. Turn it off before placement or while anchored to keep the rendered world transform fixed and ignore subsequent anchor corrections. Tracking, anchor telemetry and surface diagnostics continue. Turn it back on to apply the latest known anchor transform; this can move the model immediately. Reposition/reset still clear the placement, and width/count changes preserve the frozen pose. This control does not disable camera tracking or prevent apparent motion caused by world-tracking drift or relocalization.
+
+## Placement modes, calibration and hit markers
+
+Same modes, states and purple hit spheres as the native app; see the [root README](../README.md#placement-modes-calibration-and-hit-markers). Viro-specific details:
+
+- **Actual-anchor baseline:** `createAnchoredNode` returns the created anchor's transform (on iOS its rotation is a quaternion `[x, y, z, w]`). The app converts it and stores the row as `inverse(anchor) * placedPose`. The hit transform, returned anchor transform and first matching anchor callback are logged as `anchor_baseline` / `anchor_baseline_callback`. If no transform is returned (Android: unverified), the first callback or, failing that, the hit is used and its source is logged.
+- **Calibration sampling** uses 25 `performARHitTestWithPoint` calls per batch across the aim area. It drops to a 3 × 3 grid if a batch takes over 300 ms. Viro exposes no capture timestamps for hit tests, so samples carry JS receipt time only. That timing is weaker than native frame timestamps.
+- **Survey boards** use a narrowly typed `ViroARImageMarker` adapter, whose removal callback binds the survey id in a closure. The navigator sets `numberOfTrackedImages` to 2 only when a survey is bundled, never changing it at runtime. Add a manifest in `src/survey/bundledSurvey.ts`.

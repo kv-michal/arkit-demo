@@ -1,0 +1,2921 @@
+{
+ "cases": [
+  {
+   "name": "valid",
+   "manifest": {
+    "schema": "floorframe.survey/1",
+    "surveyId": "fixture-route",
+    "revision": 2,
+    "units": "m",
+    "convention": {
+     "handedness": "right",
+     "up": "+Y",
+     "matrixLayout": "column-major"
+    },
+    "validRouteExtentM": 25,
+    "references": [
+     {
+      "id": "A",
+      "image": {
+       "asset": "board-A.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.5,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "B",
+      "image": {
+       "asset": "board-B.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.939692620786,
+       0.0,
+       0.342020143326,
+       0.0,
+       -0.342020143326,
+       0.0,
+       0.939692620786,
+       0.0,
+       -0.0,
+       -1.0,
+       0.0,
+       0.0,
+       4.0,
+       0.6,
+       -1.2,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "C",
+      "image": {
+       "asset": "board-C.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.965925826289,
+       0.0,
+       -0.258819045103,
+       0.0,
+       0.258819045103,
+       0.0,
+       0.965925826289,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       8.0,
+       0.7,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "V",
+      "image": {
+       "asset": "board-V.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.996194698092,
+       0.0,
+       -0.087155742748,
+       0.0,
+       0.087155742748,
+       0.0,
+       0.996194698092,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       2.0,
+       0.6,
+       1.5,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     }
+    ],
+    "floorControl": {
+     "points": [
+      [
+       -3,
+       -0.078557764708,
+       -1.5
+      ],
+      [
+       -3,
+       -0.078557764708,
+       0
+      ],
+      [
+       -3,
+       -0.078557764708,
+       1.5
+      ],
+      [
+       0,
+       0.0,
+       -1.5
+      ],
+      [
+       0,
+       0.0,
+       0
+      ],
+      [
+       0,
+       0.0,
+       1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       -1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       0
+      ],
+      [
+       3,
+       0.078557764708,
+       1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       -1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       0
+      ],
+      [
+       6,
+       0.157115529415,
+       1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       -1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       0
+      ],
+      [
+       9,
+       0.235673294123,
+       1.5
+      ]
+     ],
+     "uncertaintyM": 0.001,
+     "confidence": "95%"
+    }
+   },
+   "ok": true,
+   "floorNormal": [
+    -0.026176948308,
+    0.999657324976,
+    0.0
+   ]
+  },
+  {
+   "name": "wrong units",
+   "manifest": {
+    "schema": "floorframe.survey/1",
+    "surveyId": "fixture-route",
+    "revision": 2,
+    "units": "cm",
+    "convention": {
+     "handedness": "right",
+     "up": "+Y",
+     "matrixLayout": "column-major"
+    },
+    "validRouteExtentM": 25,
+    "references": [
+     {
+      "id": "A",
+      "image": {
+       "asset": "board-A.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.5,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "B",
+      "image": {
+       "asset": "board-B.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.939692620786,
+       0.0,
+       0.342020143326,
+       0.0,
+       -0.342020143326,
+       0.0,
+       0.939692620786,
+       0.0,
+       -0.0,
+       -1.0,
+       0.0,
+       0.0,
+       4.0,
+       0.6,
+       -1.2,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "C",
+      "image": {
+       "asset": "board-C.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.965925826289,
+       0.0,
+       -0.258819045103,
+       0.0,
+       0.258819045103,
+       0.0,
+       0.965925826289,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       8.0,
+       0.7,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "V",
+      "image": {
+       "asset": "board-V.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.996194698092,
+       0.0,
+       -0.087155742748,
+       0.0,
+       0.087155742748,
+       0.0,
+       0.996194698092,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       2.0,
+       0.6,
+       1.5,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     }
+    ],
+    "floorControl": {
+     "points": [
+      [
+       -3,
+       -0.078557764708,
+       -1.5
+      ],
+      [
+       -3,
+       -0.078557764708,
+       0
+      ],
+      [
+       -3,
+       -0.078557764708,
+       1.5
+      ],
+      [
+       0,
+       0.0,
+       -1.5
+      ],
+      [
+       0,
+       0.0,
+       0
+      ],
+      [
+       0,
+       0.0,
+       1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       -1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       0
+      ],
+      [
+       3,
+       0.078557764708,
+       1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       -1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       0
+      ],
+      [
+       6,
+       0.157115529415,
+       1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       -1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       0
+      ],
+      [
+       9,
+       0.235673294123,
+       1.5
+      ]
+     ],
+     "uncertaintyM": 0.001,
+     "confidence": "95%"
+    }
+   },
+   "ok": false,
+   "error": "units"
+  },
+  {
+   "name": "left-handed",
+   "manifest": {
+    "schema": "floorframe.survey/1",
+    "surveyId": "fixture-route",
+    "revision": 2,
+    "units": "m",
+    "convention": {
+     "handedness": "left",
+     "up": "+Y",
+     "matrixLayout": "column-major"
+    },
+    "validRouteExtentM": 25,
+    "references": [
+     {
+      "id": "A",
+      "image": {
+       "asset": "board-A.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.5,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "B",
+      "image": {
+       "asset": "board-B.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.939692620786,
+       0.0,
+       0.342020143326,
+       0.0,
+       -0.342020143326,
+       0.0,
+       0.939692620786,
+       0.0,
+       -0.0,
+       -1.0,
+       0.0,
+       0.0,
+       4.0,
+       0.6,
+       -1.2,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "C",
+      "image": {
+       "asset": "board-C.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.965925826289,
+       0.0,
+       -0.258819045103,
+       0.0,
+       0.258819045103,
+       0.0,
+       0.965925826289,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       8.0,
+       0.7,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "V",
+      "image": {
+       "asset": "board-V.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.996194698092,
+       0.0,
+       -0.087155742748,
+       0.0,
+       0.087155742748,
+       0.0,
+       0.996194698092,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       2.0,
+       0.6,
+       1.5,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     }
+    ],
+    "floorControl": {
+     "points": [
+      [
+       -3,
+       -0.078557764708,
+       -1.5
+      ],
+      [
+       -3,
+       -0.078557764708,
+       0
+      ],
+      [
+       -3,
+       -0.078557764708,
+       1.5
+      ],
+      [
+       0,
+       0.0,
+       -1.5
+      ],
+      [
+       0,
+       0.0,
+       0
+      ],
+      [
+       0,
+       0.0,
+       1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       -1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       0
+      ],
+      [
+       3,
+       0.078557764708,
+       1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       -1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       0
+      ],
+      [
+       6,
+       0.157115529415,
+       1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       -1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       0
+      ],
+      [
+       9,
+       0.235673294123,
+       1.5
+      ]
+     ],
+     "uncertaintyM": 0.001,
+     "confidence": "95%"
+    }
+   },
+   "ok": false,
+   "error": "convention"
+  },
+  {
+   "name": "duplicate id",
+   "manifest": {
+    "schema": "floorframe.survey/1",
+    "surveyId": "fixture-route",
+    "revision": 2,
+    "units": "m",
+    "convention": {
+     "handedness": "right",
+     "up": "+Y",
+     "matrixLayout": "column-major"
+    },
+    "validRouteExtentM": 25,
+    "references": [
+     {
+      "id": "A",
+      "image": {
+       "asset": "board-A.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.5,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "A",
+      "image": {
+       "asset": "board-B.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.939692620786,
+       0.0,
+       0.342020143326,
+       0.0,
+       -0.342020143326,
+       0.0,
+       0.939692620786,
+       0.0,
+       -0.0,
+       -1.0,
+       0.0,
+       0.0,
+       4.0,
+       0.6,
+       -1.2,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "C",
+      "image": {
+       "asset": "board-C.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.965925826289,
+       0.0,
+       -0.258819045103,
+       0.0,
+       0.258819045103,
+       0.0,
+       0.965925826289,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       8.0,
+       0.7,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "V",
+      "image": {
+       "asset": "board-V.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.996194698092,
+       0.0,
+       -0.087155742748,
+       0.0,
+       0.087155742748,
+       0.0,
+       0.996194698092,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       2.0,
+       0.6,
+       1.5,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     }
+    ],
+    "floorControl": {
+     "points": [
+      [
+       -3,
+       -0.078557764708,
+       -1.5
+      ],
+      [
+       -3,
+       -0.078557764708,
+       0
+      ],
+      [
+       -3,
+       -0.078557764708,
+       1.5
+      ],
+      [
+       0,
+       0.0,
+       -1.5
+      ],
+      [
+       0,
+       0.0,
+       0
+      ],
+      [
+       0,
+       0.0,
+       1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       -1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       0
+      ],
+      [
+       3,
+       0.078557764708,
+       1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       -1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       0
+      ],
+      [
+       6,
+       0.157115529415,
+       1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       -1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       0
+      ],
+      [
+       9,
+       0.235673294123,
+       1.5
+      ]
+     ],
+     "uncertaintyM": 0.001,
+     "confidence": "95%"
+    }
+   },
+   "ok": false,
+   "error": "references[1].duplicateId"
+  },
+  {
+   "name": "reflected transform",
+   "manifest": {
+    "schema": "floorframe.survey/1",
+    "surveyId": "fixture-route",
+    "revision": 2,
+    "units": "m",
+    "convention": {
+     "handedness": "right",
+     "up": "+Y",
+     "matrixLayout": "column-major"
+    },
+    "validRouteExtentM": 25,
+    "references": [
+     {
+      "id": "A",
+      "image": {
+       "asset": "board-A.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       -1,
+       0,
+       0,
+       0,
+       0,
+       1,
+       0,
+       0,
+       0,
+       0,
+       1,
+       0,
+       0,
+       0,
+       0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "B",
+      "image": {
+       "asset": "board-B.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.939692620786,
+       0.0,
+       0.342020143326,
+       0.0,
+       -0.342020143326,
+       0.0,
+       0.939692620786,
+       0.0,
+       -0.0,
+       -1.0,
+       0.0,
+       0.0,
+       4.0,
+       0.6,
+       -1.2,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "C",
+      "image": {
+       "asset": "board-C.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.965925826289,
+       0.0,
+       -0.258819045103,
+       0.0,
+       0.258819045103,
+       0.0,
+       0.965925826289,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       8.0,
+       0.7,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "V",
+      "image": {
+       "asset": "board-V.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.996194698092,
+       0.0,
+       -0.087155742748,
+       0.0,
+       0.087155742748,
+       0.0,
+       0.996194698092,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       2.0,
+       0.6,
+       1.5,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     }
+    ],
+    "floorControl": {
+     "points": [
+      [
+       -3,
+       -0.078557764708,
+       -1.5
+      ],
+      [
+       -3,
+       -0.078557764708,
+       0
+      ],
+      [
+       -3,
+       -0.078557764708,
+       1.5
+      ],
+      [
+       0,
+       0.0,
+       -1.5
+      ],
+      [
+       0,
+       0.0,
+       0
+      ],
+      [
+       0,
+       0.0,
+       1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       -1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       0
+      ],
+      [
+       3,
+       0.078557764708,
+       1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       -1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       0
+      ],
+      [
+       6,
+       0.157115529415,
+       1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       -1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       0
+      ],
+      [
+       9,
+       0.235673294123,
+       1.5
+      ]
+     ],
+     "uncertaintyM": 0.001,
+     "confidence": "95%"
+    }
+   },
+   "ok": false,
+   "error": "references[0].surveyFromMarker"
+  },
+  {
+   "name": "scaled transform",
+   "manifest": {
+    "schema": "floorframe.survey/1",
+    "surveyId": "fixture-route",
+    "revision": 2,
+    "units": "m",
+    "convention": {
+     "handedness": "right",
+     "up": "+Y",
+     "matrixLayout": "column-major"
+    },
+    "validRouteExtentM": 25,
+    "references": [
+     {
+      "id": "A",
+      "image": {
+       "asset": "board-A.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       2,
+       0,
+       0,
+       0,
+       0,
+       2,
+       0,
+       0,
+       0,
+       0,
+       2,
+       0,
+       0,
+       0,
+       0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "B",
+      "image": {
+       "asset": "board-B.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.939692620786,
+       0.0,
+       0.342020143326,
+       0.0,
+       -0.342020143326,
+       0.0,
+       0.939692620786,
+       0.0,
+       -0.0,
+       -1.0,
+       0.0,
+       0.0,
+       4.0,
+       0.6,
+       -1.2,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "C",
+      "image": {
+       "asset": "board-C.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.965925826289,
+       0.0,
+       -0.258819045103,
+       0.0,
+       0.258819045103,
+       0.0,
+       0.965925826289,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       8.0,
+       0.7,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "V",
+      "image": {
+       "asset": "board-V.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.996194698092,
+       0.0,
+       -0.087155742748,
+       0.0,
+       0.087155742748,
+       0.0,
+       0.996194698092,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       2.0,
+       0.6,
+       1.5,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     }
+    ],
+    "floorControl": {
+     "points": [
+      [
+       -3,
+       -0.078557764708,
+       -1.5
+      ],
+      [
+       -3,
+       -0.078557764708,
+       0
+      ],
+      [
+       -3,
+       -0.078557764708,
+       1.5
+      ],
+      [
+       0,
+       0.0,
+       -1.5
+      ],
+      [
+       0,
+       0.0,
+       0
+      ],
+      [
+       0,
+       0.0,
+       1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       -1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       0
+      ],
+      [
+       3,
+       0.078557764708,
+       1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       -1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       0
+      ],
+      [
+       6,
+       0.157115529415,
+       1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       -1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       0
+      ],
+      [
+       9,
+       0.235673294123,
+       1.5
+      ]
+     ],
+     "uncertaintyM": 0.001,
+     "confidence": "95%"
+    }
+   },
+   "ok": false,
+   "error": "references[0].surveyFromMarker"
+  },
+  {
+   "name": "missing print size",
+   "manifest": {
+    "schema": "floorframe.survey/1",
+    "surveyId": "fixture-route",
+    "revision": 2,
+    "units": "m",
+    "convention": {
+     "handedness": "right",
+     "up": "+Y",
+     "matrixLayout": "column-major"
+    },
+    "validRouteExtentM": 25,
+    "references": [
+     {
+      "id": "A",
+      "image": {
+       "asset": "board-A.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.5,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "B",
+      "image": {
+       "asset": "board-B.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.939692620786,
+       0.0,
+       0.342020143326,
+       0.0,
+       -0.342020143326,
+       0.0,
+       0.939692620786,
+       0.0,
+       -0.0,
+       -1.0,
+       0.0,
+       0.0,
+       4.0,
+       0.6,
+       -1.2,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "C",
+      "image": {
+       "asset": "board-C.png"
+      },
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.965925826289,
+       0.0,
+       -0.258819045103,
+       0.0,
+       0.258819045103,
+       0.0,
+       0.965925826289,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       8.0,
+       0.7,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "V",
+      "image": {
+       "asset": "board-V.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.996194698092,
+       0.0,
+       -0.087155742748,
+       0.0,
+       0.087155742748,
+       0.0,
+       0.996194698092,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       2.0,
+       0.6,
+       1.5,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     }
+    ],
+    "floorControl": {
+     "points": [
+      [
+       -3,
+       -0.078557764708,
+       -1.5
+      ],
+      [
+       -3,
+       -0.078557764708,
+       0
+      ],
+      [
+       -3,
+       -0.078557764708,
+       1.5
+      ],
+      [
+       0,
+       0.0,
+       -1.5
+      ],
+      [
+       0,
+       0.0,
+       0
+      ],
+      [
+       0,
+       0.0,
+       1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       -1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       0
+      ],
+      [
+       3,
+       0.078557764708,
+       1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       -1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       0
+      ],
+      [
+       6,
+       0.157115529415,
+       1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       -1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       0
+      ],
+      [
+       9,
+       0.235673294123,
+       1.5
+      ]
+     ],
+     "uncertaintyM": 0.001,
+     "confidence": "95%"
+    }
+   },
+   "ok": false,
+   "error": "references[2].physicalWidthM"
+  },
+  {
+   "name": "invalid uncertainty",
+   "manifest": {
+    "schema": "floorframe.survey/1",
+    "surveyId": "fixture-route",
+    "revision": 2,
+    "units": "m",
+    "convention": {
+     "handedness": "right",
+     "up": "+Y",
+     "matrixLayout": "column-major"
+    },
+    "validRouteExtentM": 25,
+    "references": [
+     {
+      "id": "A",
+      "image": {
+       "asset": "board-A.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.5,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "B",
+      "image": {
+       "asset": "board-B.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.939692620786,
+       0.0,
+       0.342020143326,
+       0.0,
+       -0.342020143326,
+       0.0,
+       0.939692620786,
+       0.0,
+       -0.0,
+       -1.0,
+       0.0,
+       0.0,
+       4.0,
+       0.6,
+       -1.2,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "C",
+      "image": {
+       "asset": "board-C.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.965925826289,
+       0.0,
+       -0.258819045103,
+       0.0,
+       0.258819045103,
+       0.0,
+       0.965925826289,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       8.0,
+       0.7,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "V",
+      "image": {
+       "asset": "board-V.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.996194698092,
+       0.0,
+       -0.087155742748,
+       0.0,
+       0.087155742748,
+       0.0,
+       0.996194698092,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       2.0,
+       0.6,
+       1.5,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     }
+    ],
+    "floorControl": {
+     "points": [
+      [
+       -3,
+       -0.078557764708,
+       -1.5
+      ],
+      [
+       -3,
+       -0.078557764708,
+       0
+      ],
+      [
+       -3,
+       -0.078557764708,
+       1.5
+      ],
+      [
+       0,
+       0.0,
+       -1.5
+      ],
+      [
+       0,
+       0.0,
+       0
+      ],
+      [
+       0,
+       0.0,
+       1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       -1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       0
+      ],
+      [
+       3,
+       0.078557764708,
+       1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       -1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       0
+      ],
+      [
+       6,
+       0.157115529415,
+       1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       -1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       0
+      ],
+      [
+       9,
+       0.235673294123,
+       1.5
+      ]
+     ],
+     "uncertaintyM": 0.001,
+     "confidence": "95%"
+    }
+   },
+   "ok": false,
+   "error": "references[0].uncertainty"
+  },
+  {
+   "name": "bad role",
+   "manifest": {
+    "schema": "floorframe.survey/1",
+    "surveyId": "fixture-route",
+    "revision": 2,
+    "units": "m",
+    "convention": {
+     "handedness": "right",
+     "up": "+Y",
+     "matrixLayout": "column-major"
+    },
+    "validRouteExtentM": 25,
+    "references": [
+     {
+      "id": "A",
+      "image": {
+       "asset": "board-A.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.5,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "both"
+     },
+     {
+      "id": "B",
+      "image": {
+       "asset": "board-B.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.939692620786,
+       0.0,
+       0.342020143326,
+       0.0,
+       -0.342020143326,
+       0.0,
+       0.939692620786,
+       0.0,
+       -0.0,
+       -1.0,
+       0.0,
+       0.0,
+       4.0,
+       0.6,
+       -1.2,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "C",
+      "image": {
+       "asset": "board-C.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.965925826289,
+       0.0,
+       -0.258819045103,
+       0.0,
+       0.258819045103,
+       0.0,
+       0.965925826289,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       8.0,
+       0.7,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "V",
+      "image": {
+       "asset": "board-V.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.996194698092,
+       0.0,
+       -0.087155742748,
+       0.0,
+       0.087155742748,
+       0.0,
+       0.996194698092,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       2.0,
+       0.6,
+       1.5,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     }
+    ],
+    "floorControl": {
+     "points": [
+      [
+       -3,
+       -0.078557764708,
+       -1.5
+      ],
+      [
+       -3,
+       -0.078557764708,
+       0
+      ],
+      [
+       -3,
+       -0.078557764708,
+       1.5
+      ],
+      [
+       0,
+       0.0,
+       -1.5
+      ],
+      [
+       0,
+       0.0,
+       0
+      ],
+      [
+       0,
+       0.0,
+       1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       -1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       0
+      ],
+      [
+       3,
+       0.078557764708,
+       1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       -1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       0
+      ],
+      [
+       6,
+       0.157115529415,
+       1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       -1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       0
+      ],
+      [
+       9,
+       0.235673294123,
+       1.5
+      ]
+     ],
+     "uncertaintyM": 0.001,
+     "confidence": "95%"
+    }
+   },
+   "ok": false,
+   "error": "references[0].role"
+  },
+  {
+   "name": "no correction boards",
+   "manifest": {
+    "schema": "floorframe.survey/1",
+    "surveyId": "fixture-route",
+    "revision": 2,
+    "units": "m",
+    "convention": {
+     "handedness": "right",
+     "up": "+Y",
+     "matrixLayout": "column-major"
+    },
+    "validRouteExtentM": 25,
+    "references": [
+     {
+      "id": "A",
+      "image": {
+       "asset": "board-A.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.5,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     },
+     {
+      "id": "B",
+      "image": {
+       "asset": "board-B.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.939692620786,
+       0.0,
+       0.342020143326,
+       0.0,
+       -0.342020143326,
+       0.0,
+       0.939692620786,
+       0.0,
+       -0.0,
+       -1.0,
+       0.0,
+       0.0,
+       4.0,
+       0.6,
+       -1.2,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     },
+     {
+      "id": "C",
+      "image": {
+       "asset": "board-C.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.965925826289,
+       0.0,
+       -0.258819045103,
+       0.0,
+       0.258819045103,
+       0.0,
+       0.965925826289,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       8.0,
+       0.7,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     },
+     {
+      "id": "V",
+      "image": {
+       "asset": "board-V.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.996194698092,
+       0.0,
+       -0.087155742748,
+       0.0,
+       0.087155742748,
+       0.0,
+       0.996194698092,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       2.0,
+       0.6,
+       1.5,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     }
+    ],
+    "floorControl": {
+     "points": [
+      [
+       -3,
+       -0.078557764708,
+       -1.5
+      ],
+      [
+       -3,
+       -0.078557764708,
+       0
+      ],
+      [
+       -3,
+       -0.078557764708,
+       1.5
+      ],
+      [
+       0,
+       0.0,
+       -1.5
+      ],
+      [
+       0,
+       0.0,
+       0
+      ],
+      [
+       0,
+       0.0,
+       1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       -1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       0
+      ],
+      [
+       3,
+       0.078557764708,
+       1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       -1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       0
+      ],
+      [
+       6,
+       0.157115529415,
+       1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       -1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       0
+      ],
+      [
+       9,
+       0.235673294123,
+       1.5
+      ]
+     ],
+     "uncertaintyM": 0.001,
+     "confidence": "95%"
+    }
+   },
+   "ok": false,
+   "error": "noCorrectionReference"
+  },
+  {
+   "name": "stale schema",
+   "manifest": {
+    "schema": "floorframe.survey/0",
+    "surveyId": "fixture-route",
+    "revision": 2,
+    "units": "m",
+    "convention": {
+     "handedness": "right",
+     "up": "+Y",
+     "matrixLayout": "column-major"
+    },
+    "validRouteExtentM": 25,
+    "references": [
+     {
+      "id": "A",
+      "image": {
+       "asset": "board-A.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.5,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "B",
+      "image": {
+       "asset": "board-B.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.939692620786,
+       0.0,
+       0.342020143326,
+       0.0,
+       -0.342020143326,
+       0.0,
+       0.939692620786,
+       0.0,
+       -0.0,
+       -1.0,
+       0.0,
+       0.0,
+       4.0,
+       0.6,
+       -1.2,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "C",
+      "image": {
+       "asset": "board-C.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.965925826289,
+       0.0,
+       -0.258819045103,
+       0.0,
+       0.258819045103,
+       0.0,
+       0.965925826289,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       8.0,
+       0.7,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "V",
+      "image": {
+       "asset": "board-V.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.996194698092,
+       0.0,
+       -0.087155742748,
+       0.0,
+       0.087155742748,
+       0.0,
+       0.996194698092,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       2.0,
+       0.6,
+       1.5,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     }
+    ],
+    "floorControl": {
+     "points": [
+      [
+       -3,
+       -0.078557764708,
+       -1.5
+      ],
+      [
+       -3,
+       -0.078557764708,
+       0
+      ],
+      [
+       -3,
+       -0.078557764708,
+       1.5
+      ],
+      [
+       0,
+       0.0,
+       -1.5
+      ],
+      [
+       0,
+       0.0,
+       0
+      ],
+      [
+       0,
+       0.0,
+       1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       -1.5
+      ],
+      [
+       3,
+       0.078557764708,
+       0
+      ],
+      [
+       3,
+       0.078557764708,
+       1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       -1.5
+      ],
+      [
+       6,
+       0.157115529415,
+       0
+      ],
+      [
+       6,
+       0.157115529415,
+       1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       -1.5
+      ],
+      [
+       9,
+       0.235673294123,
+       0
+      ],
+      [
+       9,
+       0.235673294123,
+       1.5
+      ]
+     ],
+     "uncertaintyM": 0.001,
+     "confidence": "95%"
+    }
+   },
+   "ok": false,
+   "error": "schema"
+  },
+  {
+   "name": "non-planar floor control",
+   "manifest": {
+    "schema": "floorframe.survey/1",
+    "surveyId": "fixture-route",
+    "revision": 2,
+    "units": "m",
+    "convention": {
+     "handedness": "right",
+     "up": "+Y",
+     "matrixLayout": "column-major"
+    },
+    "validRouteExtentM": 25,
+    "references": [
+     {
+      "id": "A",
+      "image": {
+       "asset": "board-A.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.5,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "B",
+      "image": {
+       "asset": "board-B.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.939692620786,
+       0.0,
+       0.342020143326,
+       0.0,
+       -0.342020143326,
+       0.0,
+       0.939692620786,
+       0.0,
+       -0.0,
+       -1.0,
+       0.0,
+       0.0,
+       4.0,
+       0.6,
+       -1.2,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "C",
+      "image": {
+       "asset": "board-C.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.965925826289,
+       0.0,
+       -0.258819045103,
+       0.0,
+       0.258819045103,
+       0.0,
+       0.965925826289,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       8.0,
+       0.7,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "V",
+      "image": {
+       "asset": "board-V.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.996194698092,
+       0.0,
+       -0.087155742748,
+       0.0,
+       0.087155742748,
+       0.0,
+       0.996194698092,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       2.0,
+       0.6,
+       1.5,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     }
+    ],
+    "floorControl": {
+     "points": [
+      [
+       -3,
+       0,
+       -1.5
+      ],
+      [
+       -3,
+       0.08,
+       0
+      ],
+      [
+       -3,
+       0,
+       1.5
+      ],
+      [
+       0,
+       0.08,
+       -1.5
+      ],
+      [
+       0,
+       0,
+       0
+      ],
+      [
+       0,
+       0.08,
+       1.5
+      ],
+      [
+       3,
+       0,
+       -1.5
+      ],
+      [
+       3,
+       0.08,
+       0
+      ],
+      [
+       3,
+       0,
+       1.5
+      ],
+      [
+       6,
+       0.08,
+       -1.5
+      ],
+      [
+       6,
+       0,
+       0
+      ],
+      [
+       6,
+       0.08,
+       1.5
+      ],
+      [
+       9,
+       0,
+       -1.5
+      ],
+      [
+       9,
+       0.08,
+       0
+      ],
+      [
+       9,
+       0,
+       1.5
+      ]
+     ],
+     "uncertaintyM": 0.001,
+     "confidence": "95%"
+    }
+   },
+   "ok": false,
+   "error": "floorControl.nonPlanar"
+  },
+  {
+   "name": "collinear floor control",
+   "manifest": {
+    "schema": "floorframe.survey/1",
+    "surveyId": "fixture-route",
+    "revision": 2,
+    "units": "m",
+    "convention": {
+     "handedness": "right",
+     "up": "+Y",
+     "matrixLayout": "column-major"
+    },
+    "validRouteExtentM": 25,
+    "references": [
+     {
+      "id": "A",
+      "image": {
+       "asset": "board-A.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       1.0,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.5,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "B",
+      "image": {
+       "asset": "board-B.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.939692620786,
+       0.0,
+       0.342020143326,
+       0.0,
+       -0.342020143326,
+       0.0,
+       0.939692620786,
+       0.0,
+       -0.0,
+       -1.0,
+       0.0,
+       0.0,
+       4.0,
+       0.6,
+       -1.2,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "C",
+      "image": {
+       "asset": "board-C.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.965925826289,
+       0.0,
+       -0.258819045103,
+       0.0,
+       0.258819045103,
+       0.0,
+       0.965925826289,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       8.0,
+       0.7,
+       -1.0,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "correction"
+     },
+     {
+      "id": "V",
+      "image": {
+       "asset": "board-V.png"
+      },
+      "physicalWidthM": 0.4,
+      "physicalHeightM": 0.3,
+      "surveyFromMarker": [
+       0.996194698092,
+       0.0,
+       -0.087155742748,
+       0.0,
+       0.087155742748,
+       0.0,
+       0.996194698092,
+       0.0,
+       0.0,
+       -1.0,
+       0.0,
+       0.0,
+       2.0,
+       0.6,
+       1.5,
+       1
+      ],
+      "uncertainty": {
+       "positionM": 0.002,
+       "rotationDeg": 0.1,
+       "confidence": "95%"
+      },
+      "role": "heldOutValidation"
+     }
+    ],
+    "floorControl": {
+     "points": [
+      [
+       0,
+       0,
+       0
+      ],
+      [
+       1,
+       0,
+       0
+      ],
+      [
+       2,
+       0,
+       0
+      ],
+      [
+       3,
+       0,
+       0
+      ],
+      [
+       4,
+       0,
+       0
+      ]
+     ],
+     "uncertaintyM": 0.001,
+     "confidence": "95%"
+    }
+   },
+   "ok": false,
+   "error": "floorControl.collinear"
+  }
+ ]
+}

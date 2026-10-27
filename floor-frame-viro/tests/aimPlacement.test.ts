@@ -8,7 +8,7 @@ import { followAnchor, transformMatrix } from "../src/viroGeometry";
 
 test("visible crosshair layout converts to Viro pixels, including safe area and controls", () => {
   const point = aimPointFromLayout({ x: 20, y: 118, width: 362, height: 240 }, 3)!;
-  assert.deepEqual(point, { x: 603, y: 714, adjacentX: 614, adjacentY: 703 });
+  assert.deepEqual(point, { x: 603, y: 714, adjacentX: 614, adjacentY: 703, rect: { x: 60, y: 354, width: 1086, height: 720 } });
   assert.notEqual(point.y, 874 * 3 / 2, "Do not silently aim at screen centre under controls");
   assert.equal(aimPointFromLayout({ x: 0, y: 0, width: 0, height: 20 }, 3), null);
   assert.equal(aimPointFromLayout({ x: NaN, y: 0, width: 20, height: 20 }, 3), null);
