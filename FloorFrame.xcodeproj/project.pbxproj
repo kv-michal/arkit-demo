@@ -7,7 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1FD8C5DD3E708F261BC8D0CA /* DiagnosticsPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCBCD09EAF80CB6C6BAFAB0A /* DiagnosticsPanel.swift */; };
+		321E7ACB1008B0566ED2B7FA /* DiagnosticLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F305B60215D66FFF0B6BD8C1 /* DiagnosticLog.swift */; };
 		3FC25BEE6E428D7CB6AFEC29 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5296DBAA0ED07E233D0CBEC6 /* Assets.xcassets */; };
+		4E0BF04F9615BC3C007EBE20 /* RectangleGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF978DE12A12ADEBB1B488C5 /* RectangleGeometry.swift */; };
 		5CBDCE01E5CD53D0FECF3A36 /* FloorFrameApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FF19D497E9498D888E0AE0 /* FloorFrameApp.swift */; };
 		697556E499795EC613B40950 /* SurfacePose.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD34D88D9068ADECAAE14FF2 /* SurfacePose.swift */; };
 /* End PBXBuildFile section */
@@ -17,6 +20,9 @@
 		5296DBAA0ED07E233D0CBEC6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA521251D214D6C13C25C39A /* FloorFrame.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FloorFrame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD34D88D9068ADECAAE14FF2 /* SurfacePose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurfacePose.swift; sourceTree = "<group>"; };
+		EF978DE12A12ADEBB1B488C5 /* RectangleGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RectangleGeometry.swift; sourceTree = "<group>"; };
+		F305B60215D66FFF0B6BD8C1 /* DiagnosticLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticLog.swift; sourceTree = "<group>"; };
+		FCBCD09EAF80CB6C6BAFAB0A /* DiagnosticsPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsPanel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -40,7 +46,10 @@
 			isa = PBXGroup;
 			children = (
 				5296DBAA0ED07E233D0CBEC6 /* Assets.xcassets */,
+				F305B60215D66FFF0B6BD8C1 /* DiagnosticLog.swift */,
+				FCBCD09EAF80CB6C6BAFAB0A /* DiagnosticsPanel.swift */,
 				03FF19D497E9498D888E0AE0 /* FloorFrameApp.swift */,
+				EF978DE12A12ADEBB1B488C5 /* RectangleGeometry.swift */,
 				BD34D88D9068ADECAAE14FF2 /* SurfacePose.swift */,
 			);
 			path = FloorFrame;
@@ -117,7 +126,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				321E7ACB1008B0566ED2B7FA /* DiagnosticLog.swift in Sources */,
+				1FD8C5DD3E708F261BC8D0CA /* DiagnosticsPanel.swift in Sources */,
 				5CBDCE01E5CD53D0FECF3A36 /* FloorFrameApp.swift in Sources */,
+				4E0BF04F9615BC3C007EBE20 /* RectangleGeometry.swift in Sources */,
 				697556E499795EC613B40950 /* SurfacePose.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

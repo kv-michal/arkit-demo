@@ -1,8 +1,7 @@
 import { dot, type Pose, type Vec3 } from "./surfacePose";
 
-export function rectangleOffset(index: number, width: number) {
-  return index === 0 ? 0 : (index % 2 === 1 ? -1 : 1) * Math.ceil(index / 2) * width;
-}
+import { rectangleCenterZ, rectangleDepth, rectangleOffset } from "./rectangleGeometry";
+export { rectangleOffset } from "./rectangleGeometry";
 
 export function worldPoint(matrix: number[], local: Vec3): Vec3 {
   return [0, 1, 2].map(row => matrix[12 + row] + matrix[row] * local[0] + matrix[4 + row] * local[1] + matrix[8 + row] * local[2]) as Vec3;
@@ -20,15 +19,15 @@ export function chainGeometry(pose: Pose, width: number, count: number) {
   const offsets = Array.from({ length: count }, (_, i) => rectangleOffset(i, width));
   const minX = Math.min(...offsets) - width / 2;
   const maxX = Math.max(...offsets) + width / 2;
-  const corners = [minX, maxX].flatMap(x => [-width * 0.225, width * 0.225].map(z => worldPoint(pose.matrix, [x, 0.001, z])));
+  const corners = [minX, maxX].flatMap(x => [-rectangleDepth(width), 0].map(z => worldPoint(pose.matrix, [x, 0.001, z])));
   return {
     widthM: width, rectangleCount: count, spanM: maxX - minX,
     normal: pose.matrix.slice(4, 7), acrossAxis: pose.matrix.slice(0, 3),
     heightChangeAlongChainM: (maxX - minX) * pose.matrix[1],
     bottomCornersWorld: corners,
-    center: worldPoint(pose.matrix, [0, 0.001, 0]),
-    leftEnd: worldPoint(pose.matrix, [minX, 0.001, 0]),
-    rightEnd: worldPoint(pose.matrix, [maxX, 0.001, 0]),
+    center: worldPoint(pose.matrix, [0, 0.001, rectangleCenterZ(width)]),
+    leftEnd: worldPoint(pose.matrix, [minX, 0.001, rectangleCenterZ(width)]),
+    rightEnd: worldPoint(pose.matrix, [maxX, 0.001, rectangleCenterZ(width)]),
   };
 }
 

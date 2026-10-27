@@ -72,7 +72,10 @@ export function followAnchor(
   initial: number[],
   updated: number[],
   placed: Pose,
+  enabled = true,
+  current: Pose = placed,
 ): Pose {
+  if (!enabled) return current;
   return poseFromMatrix(
     multiply(multiply(updated, inverseRigid(initial)), placed.matrix),
   );

@@ -3,6 +3,8 @@ import {
   AppState,
   Linking,
   Pressable,
+  PixelRatio,
+  type LayoutChangeEvent,
   StyleSheet,
   Switch,
   Text,
@@ -21,6 +23,10 @@ import { FloorScene } from "./src/ARScene";
 import { settingsStore, placement, uiStore } from "./src/placement";
 import { DiagnosticsPanel } from "./src/DiagnosticsPanel";
 import { diagnostics } from "./src/diagnostics";
+
+function updateAimLayout(event: LayoutChangeEvent) {
+  placement.setAimLayout(event.nativeEvent.layout, PixelRatio.get());
+}
 
 const INITIAL_SCENE = { scene: FloorScene };
 const GRADIENT = [
@@ -110,7 +116,6 @@ function FloorFrame() {
         style={StyleSheet.absoluteFill}
         pointerEvents="none"
       />
-      <Target />
       <View
         pointerEvents="box-none"
         style={[
@@ -119,7 +124,9 @@ function FloorFrame() {
         ]}
       >
         <Header granted={granted} />
-        <View style={s.spacer} />
+        <View style={s.spacer} onLayout={updateAimLayout} pointerEvents="none">
+          <Target />
+        </View>
         <PlacementControls granted={granted} denied={denied} />
       </View>
     </View>
@@ -185,6 +192,17 @@ function PlacementControls({
         <WidthButton large selected={ui.large} />
       </View>
       <RectangleCountControl />
+      <View style={s.modeRow}>
+        <Text style={[s.modeLabel, s.modeText]}>Follow anchor updates</Text>
+        <Switch
+          accessibilityLabel="Follow anchor updates"
+          testID="followAnchorToggle"
+          value={ui.followAnchorUpdates}
+          onValueChange={placement.setFollowAnchorUpdates}
+          disabled={ui.busy}
+          trackColor={{ true: "#63e6c4" }}
+        />
+      </View>
       <OcclusionControl granted={granted} />
       <ModeControl granted={granted} />
       <Text style={s.dimensions}>

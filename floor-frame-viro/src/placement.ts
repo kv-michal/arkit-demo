@@ -10,9 +10,11 @@ import {
   type ViroAmbientLightInfo,
 } from "@reactvision/react-viro";
 import { createStore } from "./store";
-import { cross, surfacePose, type Pose, type Vec3 } from "./surfacePose";
+import { surfacePose, type Pose, type Vec3 } from "./surfacePose";
 import { depthNormal, followAnchor, transformMatrix } from "./viroGeometry";
 import { diagnostics } from "./diagnostics";
+import { aimPointFromLayout, type AimPoint } from "./aimPoint";
+import { rectangleCenterZ } from "./rectangleGeometry";
 import { chainGeometry, poseDelta, rectangleOffset, surfaceClearance, worldPoint } from "./diagnosticGeometry";
 
 export const settingsStore = createStore({
@@ -30,6 +32,7 @@ export const modelStore = createStore<{
   rectangleCount: 11,
 });
 export const uiStore = createStore({
+  followAnchorUpdates: true,
   large: false,
   rectangleCount: 11,
   occlusion: false,
@@ -41,6 +44,7 @@ export const uiStore = createStore({
   detail: "Aim the center target at a floor or slope",
 });
 type UI = ReturnType<typeof uiStore.get>;
+let aimPoint: AimPoint | null = null;
 let scene: ViroARScene | null = null;
 let navigator: ViroARSceneNavigator | null = null;
 let tracking: number = ViroTrackingStateConstants.TRACKING_UNAVAILABLE;
@@ -85,7 +89,7 @@ function anchorSummary(anchor: ViroAnchor) {
 function debugSnapshot() {
   const model = modelStore.get();
   return {
-    generation, tracking, trackingReason, settings: settingsStore.get(), ui: uiStore.get(),
+    aimPoint, placementOrigin: "camera-facing bottom edge", generation, tracking, trackingReason, settings: settingsStore.get(), ui: uiStore.get(),
     model, candidate, camera: cameraSample,
     cameraAgeMs: cameraSample ? performance.now() - cameraSample.receivedMs : null,
     binding: anchorBinding,
@@ -111,7 +115,7 @@ async function probeLockedSurface(currentScene: ViroARScene, token: number) {
     const camera = orientation.position as Vec3;
     const geometry = chainGeometry(pose, model.width, model.rectangleCount);
     const centers = Array.from({ length: model.rectangleCount }, (_, i) => ({
-      index: i, world: worldPoint(pose.matrix, [rectangleOffset(i, model.width), 0.001, 0]),
+      index: i, world: worldPoint(pose.matrix, [rectangleOffset(i, model.width), 0.001, rectangleCenterZ(model.width)]),
     }));
     const nearest = centers.reduce((best, next) =>
       Math.hypot(...next.world.map((v, i) => v - camera[i])) < Math.hypot(...best.world.map((v, i) => v - camera[i])) ? next : best);
@@ -215,6 +219,16 @@ function resetPlacement() {
 }
 export const placement = {
   debugSnapshot,
+  setAimLayout(layout: { x: number; y: number; width: number; height: number }, pixelRatio: number) {
+    const next = aimPointFromLayout(layout, pixelRatio);
+    if (JSON.stringify(next) === JSON.stringify(aimPoint)) return;
+    aimPoint = next;
+    diagnostics.record("aim_point_changed", { aimPoint, layout, pixelRatio });
+    if (!uiStore.get().locked) {
+      generation++;
+      invalid("Aim the target at a floor or slope");
+    }
+  },
   attachScene(value: ViroARScene | null) {
     diagnostics.record("scene_attached", { attached: value !== null, changed: scene !== value, generation }, true);
     if (scene !== value) generation++;
@@ -288,6 +302,8 @@ export const placement = {
           anchorBinding.initial,
           transformMatrix(anchor.position, anchor.rotation),
           anchorBinding.placed,
+          uiStore.get().followAnchorUpdates,
+          before ?? anchorBinding.placed,
         ),
       );
       diagnostics.record("bound_anchor_updated", {
@@ -304,7 +320,7 @@ export const placement = {
     diagnostics.record("anchor_removed", { anchor: anchor ? anchorSummary(anchor) : null, bound: anchor?.anchorId === anchorBinding?.id }, true);
     if (!anchor) return;
     anchors.delete(anchor.anchorId);
-    if (anchorBinding?.id === anchor.anchorId) {
+    if (anchorBinding?.id === anchor.anchorId && uiStore.get().followAnchorUpdates) {
       anchorBinding = null;
       updateUI({ locked: false });
       invalid("Anchor lost · aim at the floor again");
@@ -312,9 +328,11 @@ export const placement = {
   },
   async sample() {
     const currentScene = scene;
+    const target = aimPoint;
     const ui = uiStore.get();
     if (
       !currentScene ||
+      !target ||
       ui.busy ||
       tracking !== ViroTrackingStateConstants.TRACKING_NORMAL
     )
@@ -339,16 +357,16 @@ export const placement = {
     try {
       const orientation = await currentScene.getCameraOrientationAsync();
       const camera = orientation.position as Vec3;
-      const forward = orientation.forward as Vec3;
+      // Hit-test the visible crosshair, not the camera-forward ray hidden by the controls.
       const hits: ViroARHitTestResult[] =
-        await currentScene.performARHitTestWithRay(forward);
+        await currentScene.performARHitTestWithPoint(target.x, target.y);
       const hit = closestSurface(
         hits,
         camera,
         settings.depth || settings.occlusion,
       );
       if (token !== generation) return;
-      if (recordPreview) diagnostics.record("preview_hits", { camera: orientation, settings, hits: hits.slice(0, 32), hitCount: hits.length, selected: hit, durationMs: performance.now() - sampleStartedMs });
+      if (recordPreview) diagnostics.record("preview_hits", { aimPoint: target, camera: orientation, settings, hits: hits.slice(0, 32), hitCount: hits.length, selected: hit, durationMs: performance.now() - sampleStartedMs });
       if (!hit) {
         invalid("Aim at a textured floor and move slowly");
         return;
@@ -360,13 +378,9 @@ export const placement = {
       let normal: Vec3 | null = matrix.slice(4, 7) as Vec3;
       if (hit.type === "DepthPoint") {
         // A depth point alone does not establish a surface orientation.
-        const up = orientation.up as Vec3;
-        const right = cross(forward, up);
-        const ray = (offset: Vec3): Vec3 =>
-          forward.map((v, i) => v + offset[i] * 0.015) as Vec3;
         const [rightHits, upHits]: ViroARHitTestResult[][] = await Promise.all([
-          currentScene.performARHitTestWithRay(ray(right)),
-          currentScene.performARHitTestWithRay(ray(up)),
+          currentScene.performARHitTestWithPoint(target.adjacentX, target.y),
+          currentScene.performARHitTestWithPoint(target.x, target.adjacentY),
         ]);
         const rightHit = closestSurface(
           rightHits.filter((h) => h.type === "DepthPoint"),
@@ -386,7 +400,7 @@ export const placement = {
                 upHit.transform.position,
               )
             : null;
-        if (recordPreview) diagnostics.record("depth_normal_samples", { center: hit, right: rightHit, up: upHit, rightHits: rightHits.slice(0, 16), upHits: upHits.slice(0, 16), normal, rayOffset: 0.015 });
+        if (recordPreview) diagnostics.record("depth_normal_samples", { center: hit, right: rightHit, up: upHit, rightHits: rightHits.slice(0, 16), upHits: upHits.slice(0, 16), normal, aimPoint: target });
       }
       if (token !== generation) return;
       const pose =
@@ -424,6 +438,15 @@ export const placement = {
       invalid("AR hit test unavailable");
       updateUI({ detail: String(error) });
     }
+  },
+  setFollowAnchorUpdates(followAnchorUpdates: boolean) {
+    if (uiStore.get().busy) return;
+    updateUI({ followAnchorUpdates });
+    if (followAnchorUpdates && anchorBinding) {
+      const latest = anchors.get(anchorBinding.id);
+      if (latest) placement.anchorUpdated(latest);
+    }
+    diagnostics.record("anchor_following_changed", debugSnapshot(), true);
   },
   setWidth(large: boolean) {
     diagnostics.record("width_changed", { large, previousWidth: modelStore.get().width, width: large ? 3 : 0.2 }, true);

@@ -54,3 +54,17 @@ test("depth estimation rejects coincident samples, discontinuities and invalid d
   assert.equal(depthNormal([0, 0, 0], [0.03, 0, 0], [0, 0.4, 0.03]), null);
   assert.equal(depthNormal([NaN, 0, 0], [0.03, 0, 0], [0, 0, 0.03]), null);
 });
+
+test("anchor-follow toggle freezes the current pose and resumes with the latest correction", () => {
+  const initial = transformMatrix([1, -1, 2], [0, 20, 0]);
+  const placed = poseFromMatrix(transformMatrix([1, -1, 2], [0, 70, 0]));
+  const firstUpdate = transformMatrix([1.1, -0.9, 2], [0, 22, 0]);
+  const current = followAnchor(initial, firstUpdate, placed);
+  const latest = transformMatrix([1.5, -0.8, 2.2], [0, 30, 0]);
+  assert.equal(followAnchor(initial, latest, placed, false, current), current);
+  assert.equal(followAnchor(initial, latest, placed, false), placed);
+  const resumed = followAnchor(initial, latest, placed, true, current);
+  const expected = followAnchor(initial, latest, placed);
+  resumed.matrix.forEach((value, index) => near(value, expected.matrix[index]));
+  assert.notDeepEqual(resumed.matrix, current.matrix);
+});

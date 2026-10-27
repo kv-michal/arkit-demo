@@ -57,12 +57,12 @@ test("chain diagnostics match centered, even and odd rectangle layouts", () => {
   assert.deepEqual([0, 1, 2, 3].map(i => rectangleOffset(i, 3)), [0, -3, 3, -6]);
   const odd = chainGeometry(flat, 3, 11);
   assert.equal(odd.spanM, 33);
-  assert.deepEqual(odd.leftEnd, [-14.5, 0.001, 4]);
-  assert.deepEqual(odd.rightEnd, [18.5, 0.001, 4]);
+  assert.deepEqual(odd.leftEnd, [-14.5, 0.001, 3.325]);
+  assert.deepEqual(odd.rightEnd, [18.5, 0.001, 3.325]);
   assert.equal(odd.heightChangeAlongChainM, 0);
   const even = chainGeometry(flat, 3, 2);
-  assert.deepEqual(even.leftEnd, [-2.5, 0.001, 4]);
-  assert.deepEqual(even.rightEnd, [3.5, 0.001, 4]);
+  assert.deepEqual(even.leftEnd, [-2.5, 0.001, 3.325]);
+  assert.deepEqual(even.rightEnd, [3.5, 0.001, 3.325]);
 });
 
 test("small tilt reports growing height error without reporting anchor translation", () => {

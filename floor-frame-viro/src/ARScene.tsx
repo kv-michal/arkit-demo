@@ -9,7 +9,7 @@ import {
   ViroMaterials,
 } from "@reactvision/react-viro";
 import { modelStore, placement } from "./placement";
-import { rectangleOffset } from "./diagnosticGeometry";
+import { rectangleCenterZ, rectangleOffset } from "./rectangleGeometry";
 import { diagnostics } from "./diagnostics";
 
 ViroMaterials.createMaterials({
@@ -84,7 +84,7 @@ const RectangleRow = memo(function RectangleRow({
   count: number;
 }) {
   return (
-    <ViroNode>
+    <ViroNode position={[0, 0, rectangleCenterZ(width)]}>
       {Array.from({ length: count }, (_, index) => {
         const offset = rectangleOffset(index, width);
         return (

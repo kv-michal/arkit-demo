@@ -6,7 +6,7 @@ Expo 57 / React Native 0.86 / **@reactvision/react-viro 3.0.3**, installed as **
 
 ## Kept behavior
 
-- Portrait camera, center target, status, reset, anchor/reposition, width selector.
+- Portrait camera, visible aiming target above the controls, status, reset, anchor/reposition, width selector.
 - 20 × 9 × 10 cm or 3 × 1.35 × 1.5 m transparent mint blocks, rounded corners and opaque red bounding edges.
 - 1–51 rectangles, default **11**: center plus five on each side. Count and width can change after anchoring.
 - Viewer-facing wide edge, local surface alignment, 60° slope limit, below-camera and 8 m range checks.
@@ -15,7 +15,7 @@ Expo 57 / React Native 0.86 / **@reactvision/react-viro 3.0.3**, installed as **
 
 ## How the stock APIs are used
 
-`ViroARScene.performARHitTestWithRay` samples the camera-forward ray at up to 20 Hz, without overlapping requests. Feature points are rejected because they do not establish a surface normal. Plane-hit rotations supply their surface orientation. For depth hits, two adjacent ray tests estimate a local normal; missing, coincident or widely separated samples are rejected. The result is less direct than native ARKit's mesh-backed estimated-plane raycast and can be noisier at edges or on uneven ground.
+`ViroARScene.performARHitTestWithPoint` samples the visible crosshair at up to 20 Hz, without overlapping requests. The crosshair is centred in the free area between the header and controls; its measured layout coordinates are converted to physical pixels for Viro screen hit tests. Feature points are rejected because they do not establish a surface normal. Plane-hit rotations supply their surface orientation. For depth hits, two adjacent screen-point tests estimate a local normal; missing, coincident or widely separated samples are rejected. The result is less direct than native ARKit's mesh-backed estimated-plane raycast and can be noisier at edges or on uneven ground.
 
 `createAnchoredNode(hit)` creates a Viro-managed anchor. The returned anchor ID and scene `onAnchorFound` / `onAnchorUpdated` callbacks update the rendered world-space node while preserving its viewer-facing orientation. Viro 3.0.3 does not expose a React `ViroARNode` attachment component, so rendering follows those callbacks in JavaScript rather than attaching directly inside the renderer. If Viro returns no anchor ID, the UI reports failure; it does not pretend a frozen preview is an anchor.
 
@@ -27,7 +27,7 @@ Viro has no public remove-single-anchor API. Reposition uses its `resetARSession
 | --- | --- | --- |
 | Floor placement | Viro plane/depth hit tests | ARKit estimated-plane raycast |
 | Slopes | Normal estimated from adjacent depth hits; requires usable depth data | ARKit surface normal |
-| Anchor rendering | Anchor creation + callbacks driving a world-space node | Direct RealityKit anchor entity |
+| Anchor rendering | Anchor callbacks driving a world-space node; optional freeze | ARAnchor callbacks driving a RealityKit world anchor; optional freeze |
 | Depth control | Viro depth + world mesh; LiDAR where available, monocular fallback | LiDAR mesh reconstruction configuration |
 | Occlusion | Viro depth-based | RealityKit mesh-based |
 | Remove placement | Clear Viro session anchors | Remove the individual ARAnchor |
@@ -72,3 +72,11 @@ npx react-doctor@latest --verbose --diff
 Tests cover native-equivalent placement geometry, Viro Euler conversions, anchor transform updates, depth-normal estimation and rejection of depth discontinuities. Build/install checks do not prove live tracking, anchor stability, sloped-surface quality, or occlusion. Check those on an unlocked phone aimed at a textured, well-lit floor, including a deliberate incline and an intervening real object. Use the same sizes/counts/settings and Release builds in both apps. No performance winner or measured FPS is asserted.
 
 Validated 2026-10-23: TypeScript and all 11 geometry tests passed; React Doctor 100/100; Release build installed and launched on PotatoPhone (iPhone 16 Pro). Verified removal from pod registration, generated Expo provider and JS bundle. Live AR behavior of this bridge-free implementation remains unverified.
+
+## Placement origin
+
+The middle of the camera-facing bottom edge stays at the aimed surface point in both widths. The footprint extends away from you: the 3 m block occupies local Z from −1.35 m to 0 instead of −0.675 m to +0.675 m. Changing width while anchored preserves this edge and the anchor. Preview and anchored geometry share the same offset; the diagnostic corners and surface probes match the rendered footprint. Tests cover target layout/pixel conversion, both widths, slopes, even/odd rows and preservation of the edge after anchor updates.
+
+## Follow anchor updates
+
+**Follow anchor updates** defaults on. Turn it off before placement or while anchored to keep the rendered world transform fixed and ignore subsequent anchor corrections. Tracking, anchor telemetry and surface diagnostics continue. Turn it back on to apply the latest known anchor transform; this can move the model immediately. Reposition/reset still clear the placement, and width/count changes preserve the frozen pose. This control does not disable camera tracking or prevent apparent motion caused by world-tracking drift or relocalization.
